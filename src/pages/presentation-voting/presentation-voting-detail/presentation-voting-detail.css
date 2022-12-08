@@ -1,0 +1,14 @@
+.container-radio {
+    border:2px solid rgb(233, 234, 235) !important;
+    border-radius: 6px;
+    padding: 16px;
+    width: 500px;
+}
+
+.custom-radio {
+    width: 28px;
+    height: 28px;
+    border-color : rgb(194, 196, 199) !important;
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+}

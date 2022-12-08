@@ -1,0 +1,13 @@
+.role-title {
+    margin-top: 20px;
+    text-align: start;
+}
+/* Clear floats after the columns */
+.admin-assignment-wapper {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+.cre-link-btn-wapper {
+    align-self: center;
+}

@@ -1,0 +1,43 @@
+#custom-navbar {
+    border-bottom: 2px solid rgb(231, 232, 235);
+    background-color: #ffffff;
+}
+
+#left-pane {
+    border-right: 2px solid rgb(231, 232, 235);
+    background-color: #ffffff;
+}
+
+#center-pane {
+    background-color: #ffffff;
+    border-right: 2px solid rgb(231, 232, 235);
+}
+
+#right-pane {
+    background-color: #ffffff;
+    padding: 16px 24px 32px 24px;
+}
+
+.row-table {
+    border-style: none !important;
+}
+
+.custom-checkbox {
+    width: 20px;
+    height: 20px;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.container-slide {
+    height: 480px;
+    background-color: #ffffff;
+}
+.content-wapper {
+    height: 80%;
+}

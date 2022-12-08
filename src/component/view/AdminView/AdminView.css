@@ -1,0 +1,9 @@
+.member-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.role-assignnment-icon {
+  margin-left: 30px;
+  font-size: 20pt;
+}

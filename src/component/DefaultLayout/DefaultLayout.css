@@ -1,0 +1,13 @@
+.left-col {
+  padding-left: 0px;
+  /* height: auto; */
+}
+.right-col {
+}
+.layout-row {
+  height: 100%;
+}
+.container-fluid {
+  height: 100%;
+}
+/* Clear floats after the columns */

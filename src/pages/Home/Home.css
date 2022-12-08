@@ -1,0 +1,8 @@
+/* Clear floats after the columns */
+.admin-title-wapper {
+    display: flex;
+    justify-content: space-between;
+}
+.cre-group-btn-wapper {
+    align-self: center;
+}
