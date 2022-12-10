@@ -48,7 +48,7 @@ const PresentationVotingDetail = () => {
         reloadOptionVote();
     }, [])
     return (
-        <Container style={{backgroundColor: 'rgb(255,255,255)'}} fluid>
+        <Container className='h-100' style={{backgroundColor: 'rgb(255,255,255)'}} fluid>
             <Form onSubmit={handleSubmit(onSubmit)} >
             <div className='d-flex flex-column'>
                 <h1>Mentimeter</h1>

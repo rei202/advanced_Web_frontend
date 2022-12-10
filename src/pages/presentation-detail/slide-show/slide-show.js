@@ -71,7 +71,7 @@ const SlideShow = (props) => {
                 {!props.isEmtyList ? (
                     <div className='container-slide'>
                         <p>
-                            Go to <b>https://rei202.github.io/advanced_Web_frontend/presentation-voting</b> and use the code <b>{slide?.id}</b>
+                            Go to <b>http://localhost:3000/presentation-voting</b> and use the code <b>{slide?.id}</b>
                         </p>
                         <p>
                             <h2>{slide?.content?.title}</h2>

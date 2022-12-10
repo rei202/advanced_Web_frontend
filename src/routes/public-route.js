@@ -1,14 +1,14 @@
 import {FC} from "react";
 import {useNavigate, Navigate} from "react-router";
+import {Cone} from "react-bootstrap-icons";
+import Container from "react-bootstrap/Container";
 
 const PublicRoute: FC<{ children: React.ReactElement }> = ({ children }) => {
-    // const accessToken = localStorage.getItem('token');
-    // if (accessToken) {
-    //     // const group_id = localStorage.getItem('group_id');
-    //     // if (group_id) return <Navigate to={`invite/${group_id}`}/>;
-    //     return <Navigate to='/'/>;
-    // }
-    return children;
+    return (
+        <Container fluid className='h-100'>
+            {children}
+        </Container>
+    );
 };
 
 export default PublicRoute;

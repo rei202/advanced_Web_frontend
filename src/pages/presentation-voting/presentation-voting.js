@@ -35,7 +35,7 @@ const PresentationVoting = () => {
             })
     }
     return (
-        <Container style={{backgroundColor : 'white'}} fluid>
+        <Container className='h-100' style={{backgroundColor : 'white'}} fluid>
             <div className='d-flex flex-column align-items-center'
                  >
                 <h1>Mentimeter</h1>
