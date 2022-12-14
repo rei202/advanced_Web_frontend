@@ -23,10 +23,23 @@
     height: 20px;
 }
 
-.icon-button {
-    background : none;
-    border: none;
+.icon-button, .icon-button:hover, .icon-button:active, .icon-button:focus {
+    background : none !important;
+    border: none !important;
     margin: 0;
     padding: 0;
 }
+
+.present-icon {
+    color: rgb(219, 220, 225) !important;
+    background-color: black;
+    cursor: pointer;
+}
+
+.present-icon:hover {
+    color: dodgerblue !important;
+    background-color: white;
+    cursor: pointer;
+}
+
 

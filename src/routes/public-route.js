@@ -4,11 +4,17 @@ import {Cone} from "react-bootstrap-icons";
 import Container from "react-bootstrap/Container";
 
 const PublicRoute: FC<{ children: React.ReactElement }> = ({ children }) => {
-    return (
-        <Container fluid className='h-100'>
-            {children}
-        </Container>
-    );
+    const navigate = useNavigate();
+    if (localStorage.getItem('token') && localStorage.getItem('token') != "") {
+        return <Navigate to='/group'/>;
+    }
+    else {
+        return (
+            <Container fluid className='h-100'>
+                {children}
+            </Container>
+        );
+    }
 };
 
 export default PublicRoute;

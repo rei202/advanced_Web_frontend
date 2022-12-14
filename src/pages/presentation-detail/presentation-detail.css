@@ -41,3 +41,7 @@
 .content-wapper {
     height: 80%;
 }
+
+td {
+    border-bottom: 0 !important;
+}

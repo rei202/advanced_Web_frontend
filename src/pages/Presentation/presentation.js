@@ -1,16 +1,9 @@
 import './presentation.css';
 import {
     Button,
-    Col,
-    Container,
     Dropdown,
     Form,
-    ListGroup,
     Modal,
-    Nav,
-    Navbar,
-    NavDropdown,
-    Row,
     Table
 } from 'react-bootstrap';
 import {CaretRightSquareFill} from 'react-bootstrap-icons';
@@ -21,8 +14,8 @@ import * as yup from 'yup';
 import {useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import useAxios from '../../hooks/useAxios';
-import PresentationModel from '../../models/presentation.model';
 import {useNavigate} from 'react-router';
+import usePresentationApi from "../../api/usePresentationApi";
 
 const schema = yup
     .object({
@@ -45,11 +38,14 @@ const Presentation = () => {
     const [isPresentationModalShow, setIsPresentationModalShow] = useState(false);
     const [isPresentationDeleteModalShow, setIsPresentationDeleteModalShow] = useState(false);
     const [isPresentationEditModalShow, setIsPresentationEditModalShow] = useState(false);
-    const [choosenPresentation, setChoosenPresentation] = useState(null);
+    const [choosenPresentation, setChoosenPresentation] = useState();
     const [presentationList, setPresentationList] = useState([]);
 
+    const presentationApi = usePresentationApi();
     const reloadData = () => {
-        axios.get('/api/v1/presentation').then((resp) => {
+        presentationApi.getListPresentation()
+            .then((resp) => {
+                console.log(resp.data);
             setPresentationList(resp.data);
         });
     };
@@ -58,13 +54,12 @@ const Presentation = () => {
         reloadData();
     }, []);
 
-    const onSubmit = (presentationFormData) => {
+    const onSubmit = (presentationFormData : any) => {
         setIsPresentationModalShow(false);
-        axios
-            .post('/api/v1/presentation/add', {
-                presentationName: presentationFormData.namePresentation,
-                createdTime: '' + Date.now()
-            })
+        presentationApi.addNewPresentation({
+            presentationName: presentationFormData.namePresentation,
+            createdTime: '' + Date.now()
+        })
             .then((resp) => {
                 reloadData();
             })
@@ -73,12 +68,11 @@ const Presentation = () => {
             });
     };
 
-    const onEditSubmit = (formData) => {
-        axios
-            .post(`/api/v1/presentation/edit/${choosenPresentation?.id}`, {
-                presentationName: formData.nameEditPresentation,
-                editTime: '' + Date.now()
-            })
+    const onEditSubmit = (formData : any) => {
+        presentationApi.editPresentation(choosenPresentation?.id, {
+            presentationName: formData.nameEditPresentation,
+            editTime: '' + Date.now()
+        })
             .then((resp) => {
                 reloadData();
                 setIsPresentationEditModalShow(false);
@@ -88,19 +82,18 @@ const Presentation = () => {
             });
     };
 
-    const onDeleteDropDownClick = (presentation) => {
+    const onDeleteDropDownClick = (presentation : any) => {
         setChoosenPresentation(presentation);
         setIsPresentationDeleteModalShow(true);
     };
 
-    const onEditDropDownClick = (presentation) => {
+    const onEditDropDownClick = (presentation : any) => {
         setChoosenPresentation(presentation);
         setIsPresentationEditModalShow(true);
     };
 
-    const onDeletePresentationClick = (presentation) => {
-        axios
-            .post('/api/v1/presentation/delete', {preId: presentation.id})
+    const onDeletePresentationClick = (presentation : any) => {
+        presentationApi.deletePresentation({preId: presentation.id})
             .then((resp) => {
                 reloadData();
                 setIsPresentationDeleteModalShow(false);
@@ -134,16 +127,16 @@ const Presentation = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {presentationList.map((presentation, index) => (
-                        <tr className='row-table text-start' key={index}
-                            onClick={() => navigate(`./${presentation.id}`)}>
+                    {presentationList.map((presentation : any, index) => (
+                        <tr className='row-table text-start' key={index}>
                             <td></td>
                             <td>
                                 <div className='d-flex flex-row align-items-center'>
-                                    <CaretRightSquareFill className='rounded-circle'
+                                    <CaretRightSquareFill className='rounded-circle me-3 present-icon'
                                                           size='24'></CaretRightSquareFill>
                                     <div className='d-flex flex-column'>
-                                                    <span className='text-dark' style={{cursor: 'pointer'}}>
+                                                    <span className='text-dark' style={{cursor: 'pointer'}}
+                                                          onClick={() => navigate(`./${presentation.id}`)}>
                                                         {presentation.name}
                                                     </span>
                                         <span className='text-secondary'>1 slide</span>

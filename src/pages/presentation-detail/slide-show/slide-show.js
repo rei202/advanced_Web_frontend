@@ -7,26 +7,24 @@ import { useEffect, useState } from 'react';
 import useAxios from '../../../hooks/useAxios';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
-import { connect } from 'net';
+import useContentApi from "../../../api/useContentApi";
 
 var stompClient = null;
 
 const SlideShow = (props) => {
     const slide = props.slide;
     const stateChange = props.stateChange;
-    const axios = useAxios();
+    const contentApi = useContentApi();
     const [optionVote, setOptionVote] = useState([]);
     const [maxValue, setMaxValue] = useState(0);
     const reloadOptionVote = () => {
-        axios
-            .get('/api/v1/slide-type', { params: { contentId: slide?.content?.id } })
+        contentApi.getContentDetail(slide?.content?.id)
             .then((resp) => {
                 const optionList = resp.data.map((data) => {
                     if (data.option.numberVote + 6 > maxValue) setMaxValue(data.option.numberVote + 6);
                     return data.option;
                 });
                 setOptionVote(optionList);
-                console.log(optionList);
             })
             .catch((err) => {
                 console.log(err);
@@ -39,7 +37,8 @@ const SlideShow = (props) => {
     }, [slide, stateChange]);
 
     const connect = () => {
-        let Sock = new SockJS('https://advancedwebbackend-production-1b23.up.railway.app/ws');
+        // let Sock = new SockJS('https://advancedwebbackend-production-1b23.up.railway.app/ws');
+        let Sock = new SockJS('http://localhost:8080/ws');
         stompClient = over(Sock);
         stompClient.connect({}, onConnected, onError);
     };
@@ -49,7 +48,6 @@ const SlideShow = (props) => {
     };
 
     const onPrivateMessage = (payload) => {
-        console.log(payload);
         var payloadData = JSON.parse(payload.body);
         if (payloadData) {
             const optionList = payloadData.map((data) => {
@@ -71,7 +69,7 @@ const SlideShow = (props) => {
                 {!props.isEmtyList ? (
                     <div className='container-slide'>
                         <p>
-                            Go to <b>http://localhost:3000/presentation-voting</b> and use the code <b>{slide?.id}</b>
+                            Go to <b>http://localhost:3000/advanced_Web_frontend#/presentation-voting</b> and use the code <b>{slide?.id}</b>
                         </p>
                         <p>
                             <h2>{slide?.content?.title}</h2>
