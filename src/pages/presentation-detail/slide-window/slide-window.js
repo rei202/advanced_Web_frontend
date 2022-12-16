@@ -8,20 +8,19 @@ import {useEffect, useState} from "react";
 
 const SlideWindow = (props) => {
     const listSlide = props.listSlide || [];
-    const [choosenSlide, setChoosenSlide] = useState(null);
-    useEffect(() => {
-        if (listSlide && listSlide.length > 0) {
-            setChoosenSlide(listSlide[0]);
-            props.onChoosenSlide(listSlide[0]);
-        }
-    }, [listSlide])
+    const choosenSlide = props.slide;
+    // useEffect(() => {
+    //     if (listSlide && listSlide.length > 0) {
+    //         setChoosenSlide(listSlide[0]);
+    //         props.onChoosenSlide(listSlide[0]);
+    //     }
+    // }, [listSlide])
 
     const isSlideActive = (slide)  => {
         return slide?.id == choosenSlide?.id;
     }
 
     const onSlideClick = (slide) => {
-        setChoosenSlide(slide);
         props.onChoosenSlide(slide);
     }
 

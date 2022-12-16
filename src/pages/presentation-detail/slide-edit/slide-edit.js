@@ -12,16 +12,17 @@ import {
 import {useEffect, useState} from "react";
 import {faImage} from "@fortawesome/free-regular-svg-icons/faImage";
 import useAxios from "../../../hooks/useAxios";
+import useContentApi from "../../../api/useContentApi";
 
 const SlideEdit = (props) => {
     const axios = useAxios();
     const slide = props.slide;
+    const contentApi = useContentApi();
     const [listOption, setListOption] = useState([]);
     const [initTitleValue, setInitTitleValue] = useState(slide?.content?.title);
     const [initialOptionListName, setInitialOptionListName] = useState([]);
-    const [previousTimeStamp, setPreviousTimeStamp] = useState(0);
     const reloadListOption = () => {
-        axios.get('/api/v1/slide-type', {params : {contentId : slide?.content?.id}})
+        contentApi.getContentDetail(slide?.content?.id)
             .then(resp => {
                 setListOption(resp?.data);
                 setInitialOptionListName(resp?.data.map(respData => respData.option.name));
@@ -135,7 +136,7 @@ const SlideEdit = (props) => {
                     )
                 }
                 <Button variant='secondary' onClick={() => addNewOption()}>
-                    <FontAwesomeIcon icon={faPlus}/>
+                    <FontAwesomeIcon icon={faPlus} className={'me-2'}/>
                     <span>Add option</span>
                 </Button>
             </Row>

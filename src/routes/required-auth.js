@@ -10,7 +10,6 @@ const RequireAuth: FC<{ children: React.ReactElement }> = ({ children }) => {
         localStorage.setItem('group_id', groupId);
     }
     else localStorage.removeItem('group_id');
-    // kiểm tra có redirect_url hay không ? Nếu có thì request
 
     if (searchParams.has('access_token') && searchParams.has('username')) {
         localStorage.setItem('token', searchParams.get('access_token'));

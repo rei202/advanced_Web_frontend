@@ -4,8 +4,6 @@ import {
     Col,
     ListGroup, Row
 } from "react-bootstrap";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCaretRight, faChartColumn, faEllipsisH, faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Cell, LabelList} from "recharts";
 import {useEffect, useState} from "react";
 import useAxios from "../../../hooks/useAxios";
@@ -13,24 +11,30 @@ import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
 import {connect} from "net";
 import {useParams} from "react-router";
+import useSlideApi from "../../../api/useSlideApi";
+import UseContentApi from "../../../api/useContentApi";
+import useContentApi from "../../../api/useContentApi";
+import {ROOT_URL} from "../../../constant/common.const";
 
 var stompClient = null;
 
 const SlidePresent = () => {
     const params = useParams();
+    const slideApi = useSlideApi();
+    const contentApi = useContentApi();
     const slideId = params.id;
     const axios = useAxios();
     const [slide, setSlide] = useState();
     const [optionVote, setOptionVote] = useState([]);
     const [maxValue, setMaxValue] = useState(0);
     const reloadOptionVote = () => {
-        axios.get(`/api/v1/slide/${slideId}`)
+        slideApi.getSlideDetail(slideId)
             .then(resp => {
                 setSlide(resp.data);
                 return resp.data
             })
             .then(resp => {
-                return axios.get('/api/v1/slide-type', {params : {contentId : slide?.content?.id}})
+                return UseContentApi.getContentDetail(slide?.content?.id);
             })
             .then(resp => {
                 const optionList = resp.data.map(data => {
@@ -51,7 +55,7 @@ const SlidePresent = () => {
     }, [])
 
     const connect = () => {
-        let Sock = new SockJS('http://localhost:8080/ws');
+        let Sock = new SockJS(`${ROOT_URL}/ws`);
         stompClient = over(Sock);
         stompClient.connect({}, onConnected, onError);
     };

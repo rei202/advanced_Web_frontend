@@ -12,20 +12,17 @@ html,
 }
 
 .outer {
+    padding: 32px 16px;
     display: flex;
     justify-content: center;
-    flex-direction: column;
+    flex-direction: row;
     text-align: left;
 }
 
 .inner {
-    width: 450px;
-    margin: auto;
-    background: #61c0bf;
-    box-shadow: 0px 14px 80px rgba(34, 35, 58, 0.2);
-    padding: 40px 55px 50px 55px;
-    border-radius: 15px;
-    transition: all 0.3s;
+    max-width: 568px;
+    width: 100%;
+
 }
 
 .outer .form-control:focus {
@@ -44,6 +41,7 @@ html,
     padding: 5px;
 }
 
+ 
 .custom-control-label {
     font-weight: 400;
 }
@@ -68,9 +66,7 @@ html,
 }
 
 .login-button {
-    background-color: #FF2E63;
-    height: 2rem;
-    border-radius: 12px;
+    background-color: #966a57;
     border: none;
     margin-top: 10px;
     color: white;

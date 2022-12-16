@@ -9,27 +9,82 @@ import SlideShow from './slide-show/slide-show';
 import SlideEdit from './slide-edit/slide-edit';
 import { useNavigate, useParams } from 'react-router';
 import useAxios from '../../hooks/useAxios';
+import useSlideApi from "../../api/useSlideApi";
 
 const PresentationDetail = () => {
     const navigate = useNavigate();
     const params = useParams();
     const axios = useAxios();
+    const slideApi = useSlideApi();
     const preId = params.id;
-    const [listSlide, setListSlide] = useState([]);
-    const [choosenSlide, setChoosenSlide] = useState(null);
+    const [listSlide, setListSlide] = useState(
+        [
+            {
+                "id": 25,
+                "presentation": {
+                    "id": 5,
+                    "name": "presentation_1",
+                    "user": {
+                        "id": 2,
+                        "username": "nhatcuongti",
+                        "emailAddress": "nhatcuongti@gmail.com",
+                        "facebookId": null,
+                        "fullName": "Bùi Nguyễn Nhật Hào",
+                        "image": null,
+                        "activate": true
+                    },
+                    "modifiedTime": null,
+                    "createdTime": null
+                },
+                "content": {
+                    "id": 25,
+                    "slideType": 1,
+                    "title": "Multiple choice"
+                }
+            }
+        ]
+    );
+
+    const [choosenSlide, setChoosenSlide] = useState(
+        {
+            "id": 25,
+            "test" : true,
+            "presentation": {
+                "id": 5,
+                "name": "presentation_1",
+                "user": {
+                    "id": 2,
+                    "username": "nhatcuongti",
+                    "emailAddress": "nhatcuongti@gmail.com",
+                    "facebookId": null,
+                    "fullName": "Bùi Nguyễn Nhật Hào",
+                    "image": null,
+                    "activate": true
+                },
+                "modifiedTime": null,
+                "createdTime": null
+            },
+            "content": {
+                "id": 25,
+                "slideType": 1,
+                "title": "Multiple choice"
+            }
+        },
+    );
     const [isEmtyList, setIsEmtyList] = useState(false);
     const [stateChange, setStateChange] = useState(true);
-    const reloadListSlide = () => {
-        axios
-            .get('/api/v1/slide', { params: { preId: preId } })
+    const reloadListSlide =() => {
+        slideApi.getListSlide(preId)
             .then((resp) => {
                 setListSlide(resp.data);
-                console.log(resp.data.length);
                 if (resp.data.length === 0) setIsEmtyList(true);
-                else setIsEmtyList(false);
+                else {
+                    if (choosenSlide?.test) setChoosenSlide(resp.data[0])
+                    else if (choosenSlide) setChoosenSlide(resp.data.filter(data => data.id == choosenSlide.id)[0])
+                    setIsEmtyList(false);
+                }
             })
             .catch((err) => {
-                console.log(err);
             });
     };
 
@@ -38,10 +93,13 @@ const PresentationDetail = () => {
     }, [stateChange]);
 
     const onAddNewSlideClick = () => {
-        axios
-            .post('/api/v1/slide/add', { preId: preId, slideType: 1, title: 'Multiple choice' })
+        slideApi.addNewSlide( { preId: preId, slideType: 1, title: 'Multiple choice' })
             .then((resp) => {
-                reloadListSlide();
+                if (resp.data) {
+                    listSlide.push(resp.data);
+                    setListSlide([...listSlide]);
+                    setChoosenSlide(listSlide.at(-1));
+                }
             })
             .catch((err) => {
                 console.log(err);
@@ -49,7 +107,6 @@ const PresentationDetail = () => {
     };
 
     const onChoosenSlideClick = (slide) => {
-        console.log(slide);
         if (slide) setChoosenSlide(slide);
     };
 
@@ -58,10 +115,20 @@ const PresentationDetail = () => {
     };
 
     const onDeleteSlideClick = () => {
-        axios
-            .post('/api/v1/slide/delete', { slideId: choosenSlide?.id })
+        slideApi.deleteSlide( { slideId: choosenSlide?.id })
             .then((resp) => {
-                reloadListSlide();
+                const deleteSlide = resp.data;
+                const indexDeleteSlide = listSlide.findIndex(slide => slide.id == deleteSlide.id);
+                const listSlideAfterDelete = listSlide.filter(slide => slide.id != deleteSlide.id);
+                setListSlide([...listSlideAfterDelete]);
+
+                let choosenSlideAfterDelete = {};
+                if (listSlideAfterDelete.length > 0) {
+                    choosenSlideAfterDelete = listSlideAfterDelete[(indexDeleteSlide == 0) ? 0 : indexDeleteSlide - 1];
+                }
+
+                setChoosenSlide(choosenSlideAfterDelete);
+
             })
             .catch((err) => {
                 console.log(err);
@@ -88,11 +155,11 @@ const PresentationDetail = () => {
                             </Nav>
                             <Nav>
                                 <Button variant='secondary' className='me-4'>
-                                    <Share size='20'></Share>
+                                    <Share size='20' className={'me-2'}></Share>
                                     <span>Share</span>
                                 </Button>
                                 <Button variant='primary' onClick={() => navigate(`./present`)}>
-                                    <FontAwesomeIcon icon={faCaretRight} size={'xl'} />
+                                    <FontAwesomeIcon className={'me-2'} icon={faCaretRight} size={'xl'} />
                                     <span>Present</span>
                                 </Button>
                             </Nav>
@@ -105,11 +172,11 @@ const PresentationDetail = () => {
                 <Col className='d-flex flex-row justify-content-between'>
                     <div>
                         <Button variant={'primary'} onClick={() => onAddNewSlideClick()}>
-                            <FontAwesomeIcon icon={faPlus} />
+                            <FontAwesomeIcon className={'me-2'} icon={faPlus} />
                             <span>New slide</span>
                         </Button>
                         <Button variant={'danger'} onClick={() => onDeleteSlideClick()} className='ms-2'>
-                            <FontAwesomeIcon icon={faTrash} />
+                            <FontAwesomeIcon className={'me-2'} icon={faTrash} />
                             <span>Delete slide</span>
                         </Button>
                     </div>
@@ -118,7 +185,7 @@ const PresentationDetail = () => {
             {/*Slide Show*/}
             <Row className='content-wapper'>
                 <Col id='left-pane' className='p-0' xs={2}>
-                    <SlideWindow listSlide={listSlide} onChoosenSlide={onChoosenSlideClick} />
+                    <SlideWindow listSlide={listSlide} slide={choosenSlide} onChoosenSlide={onChoosenSlideClick} />
                 </Col>
                 <Col id='center-pane' xs={7}>
                     <SlideShow slide={choosenSlide} stateChange={stateChange} isEmtyList={isEmtyList} />
