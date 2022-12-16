@@ -44,6 +44,7 @@ const PresentationDetail = () => {
             }
         ]
     );
+
     const [choosenSlide, setChoosenSlide] = useState(
         {
             "id": 25,

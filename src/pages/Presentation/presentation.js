@@ -146,8 +146,8 @@ const Presentation = () => {
                             <td className='text-secondary align-middle'>{presentation?.user?.username}</td>
                             <td className='text-secondary align-middle'>{presentation?.modifiedTime}</td>
                             <td className='text-secondary align-middle'>{presentation?.createdTime}</td>
-                            <td className='align-items-center'>
-                                <Dropdown className='m-auto'>
+                            <td className='align-items-center d-flex'>
+                                <Dropdown>
                                     <Dropdown.Toggle id='dropdown-basic' className='icon-button'>
                                         <FontAwesomeIcon size='xl' color='black'
                                                          icon={faEllipsisH}></FontAwesomeIcon>

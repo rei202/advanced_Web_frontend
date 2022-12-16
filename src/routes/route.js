@@ -20,13 +20,13 @@ const privateRoutes = [
     { path: '/presentation/:id', element: PresentationDetail },
     { path: '/presentation-voting/:id', element: PresentationVotingDetail },
     { path: '/presentation/:id/present', element: SlidePresent },
+    { path: '/presentation-voting', element: PresentationVoting },
+    { path: '/presentation-voting/:id', element: PresentationVotingDetail },
 ];
 
 const publicRoutes = [
     { path: '/register', element: Signup, haveLayout: true },
     { path: '/login', element: Login, haveLayout: true },
-    { path: '/presentation-voting', element: PresentationVoting },
-    { path: '/presentation-voting/:id', element: PresentationVotingDetail },
 ];
 
 export { privateRoutes, publicRoutes };

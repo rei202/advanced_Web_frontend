@@ -10,7 +10,7 @@ const PublicRoute: FC<{ children: React.ReactElement }> = ({ children }) => {
     }
     else {
         return (
-            <Container fluid className='h-100'>
+            <Container fluid className='h-100 bg-white'>
                 {children}
             </Container>
         );

@@ -14,6 +14,7 @@ import {useParams} from "react-router";
 import useSlideApi from "../../../api/useSlideApi";
 import UseContentApi from "../../../api/useContentApi";
 import useContentApi from "../../../api/useContentApi";
+import {ROOT_URL} from "../../../constant/common.const";
 
 var stompClient = null;
 
@@ -54,7 +55,7 @@ const SlidePresent = () => {
     }, [])
 
     const connect = () => {
-        let Sock = new SockJS('http://localhost:8080/ws');
+        let Sock = new SockJS(`${ROOT_URL}/ws`);
         stompClient = over(Sock);
         stompClient.connect({}, onConnected, onError);
     };

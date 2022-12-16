@@ -12,20 +12,17 @@ html,
 }
 
 .outer {
+    padding: 32px 16px;
     display: flex;
     justify-content: center;
-    flex-direction: column;
+    flex-direction: row;
     text-align: left;
 }
 
 .inner {
-    width: 450px;
-    margin: auto;
-    background: #e7cabc;
-    box-shadow: 0px 14px 80px rgba(34, 35, 58, 0.2);
-    padding: 40px 55px 50px 55px;
-    border-radius: 15px;
-    transition: all 0.3s;
+    max-width: 568px;
+    width: 100%;
+
 }
 
 .outer .form-control:focus {
