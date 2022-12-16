@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import './left-menu.css';
 import { Button, ListGroup, Nav, Navbar, NavDropdown } from 'react-bootstrap';
-import { useNavigate } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import preIcon from '../../assets/images/presentation.png';
 import groupIcon from '../../assets/images/people.png';
-import {Button, ListGroup, Nav, Navbar, NavDropdown} from 'react-bootstrap';
 import {useLocation, useNavigate} from 'react-router';
 
 const LeftMenu = () => {
