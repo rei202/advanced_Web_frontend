@@ -1,5 +1,5 @@
 import { Button } from 'react-bootstrap';
-import thumnail from '../../../assets/images/group-thumnail.jpg';
+import userIcon from '../../../assets/images/father.png';
 import './MemberView.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserSlash, faFlag } from '@fortawesome/free-solid-svg-icons';
@@ -14,8 +14,8 @@ const MemberView = ({ props, myRole, handlerUpgrade, handlerDelete }) => {
         <>
             <div className='member-item'>
                 <div className='mi-info'>
-                    <img src={thumnail} alt='#' width='40' height='40' />
-                    <span>{props.user.fullName}</span>
+                    <img src={userIcon} alt='#' width='40' height='40' />
+                    <span style={{ marginLeft: '10px' }}>{props.user.fullName}</span>
                 </div>
                 {!(myRole === 'ROLE_MEMBER') ? (
                     <div className='assignment-btn-wapper'>

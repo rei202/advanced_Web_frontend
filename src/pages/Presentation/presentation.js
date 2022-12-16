@@ -1,28 +1,15 @@
 import './presentation.css';
-import {
-    Button,
-    Col,
-    Container,
-    Dropdown,
-    Form,
-    ListGroup,
-    Modal,
-    Nav,
-    Navbar,
-    NavDropdown,
-    Row,
-    Table
-} from 'react-bootstrap';
-import {CaretRightSquareFill} from 'react-bootstrap-icons';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faEllipsisH} from '@fortawesome/free-solid-svg-icons';
-import {useEffect, useState} from 'react';
+import { Button, Col, Container, Dropdown, Form, ListGroup, Modal, Nav, Navbar, NavDropdown, Row, Table } from 'react-bootstrap';
+import { CaretRightSquareFill } from 'react-bootstrap-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
+import { useEffect, useState } from 'react';
 import * as yup from 'yup';
-import {useForm} from 'react-hook-form';
-import {yupResolver} from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import useAxios from '../../hooks/useAxios';
 import PresentationModel from '../../models/presentation.model';
-import {useNavigate} from 'react-router';
+import { useNavigate } from 'react-router';
 
 const schema = yup
     .object({
@@ -36,7 +23,7 @@ const Presentation = () => {
         register,
         handleSubmit,
         reset,
-        formState: {errors},
+        formState: { errors },
     } = useForm({
         resolver: yupResolver(schema),
     });
@@ -63,7 +50,7 @@ const Presentation = () => {
         axios
             .post('/api/v1/presentation/add', {
                 presentationName: presentationFormData.namePresentation,
-                createdTime: '' + Date.now()
+                createdTime: '' + Date.now(),
             })
             .then((resp) => {
                 reloadData();
@@ -77,7 +64,7 @@ const Presentation = () => {
         axios
             .post(`/api/v1/presentation/edit/${choosenPresentation?.id}`, {
                 presentationName: formData.nameEditPresentation,
-                editTime: '' + Date.now()
+                editTime: '' + Date.now(),
             })
             .then((resp) => {
                 reloadData();
@@ -100,7 +87,7 @@ const Presentation = () => {
 
     const onDeletePresentationClick = (presentation) => {
         axios
-            .post('/api/v1/presentation/delete', {preId: presentation.id})
+            .post('/api/v1/presentation/delete', { preId: presentation.id })
             .then((resp) => {
                 reloadData();
                 setIsPresentationDeleteModalShow(false);
@@ -112,66 +99,62 @@ const Presentation = () => {
 
     return (
         <>
-            <p className='text-start'>My PresentationDetail</p>
-            <div className='d-flex flex-row justify-content-between me-5'
-                 style={{marginTop: '32px', marginBottom: '32px'}}>
-                <Button className='me-4' onClick={() => setIsPresentationModalShow(true)}>
+            {/* <p className='text-start'>My PresentationDetail</p> */}
+            <div className='d-flex flex-row justify-content-between me-5' style={{ marginTop: '16px', marginBottom: '32px' }}>
+                <Button className='me-4 add-pre-btn' onClick={() => setIsPresentationModalShow(true)}>
                     New Presentation
                 </Button>
             </div>
             <div>
                 <Table hover>
                     <thead>
-                    <tr>
-                        <th className='text-start'>
-                            <input type='checkbox' className='custom-checkbox'/>
-                        </th>
-                        <th className='text-start'>Name</th>
-                        <th className='text-start'>Owner</th>
-                        <th className='text-start'>Modified</th>
-                        <th className='text-start'>Created</th>
-                        <th className='text-start'></th>
-                    </tr>
+                        <tr>
+                            <th className='text-start align-middle'>
+                                <input type='checkbox' className='custom-checkbox' />
+                            </th>
+                            <th className='text-start'>Name</th>
+                            <th className='align-middle'>Owner</th>
+                            <th className='align-middle'>Modified</th>
+                            <th className='align-middle'>Created</th>
+                            <th className='align-middle'></th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {presentationList.map((presentation, index) => (
-                        <tr className='row-table text-start' key={index}
-                            onClick={() => navigate(`./${presentation.id}`)}>
-                            <td></td>
-                            <td>
-                                <div className='d-flex flex-row align-items-center'>
-                                    <CaretRightSquareFill className='rounded-circle'
-                                                          size='24'></CaretRightSquareFill>
-                                    <div className='d-flex flex-column'>
-                                                    <span className='text-dark' style={{cursor: 'pointer'}}>
-                                                        {presentation.name}
-                                                    </span>
-                                        <span className='text-secondary'>1 slide</span>
+                        {presentationList.map((presentation, index) => (
+                            <tr className='row-table text-start' key={index}>
+                                <td></td>
+                                <td onClick={() => navigate(`./${presentation.id}`)}>
+                                    <div className='d-flex flex-row align-items-center'>
+                                        <CaretRightSquareFill className='rounded-circle' size='24'></CaretRightSquareFill>
+                                        <div className='d-flex flex-column'>
+                                            <span className='text-dark' style={{ cursor: 'pointer' }}>
+                                                {presentation.name}
+                                            </span>
+                                            <span className='text-secondary'>1 slide</span>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td className='text-secondary align-middle'>{presentation?.user?.username}</td>
-                            <td className='text-secondary align-middle'>{presentation?.modifiedTime}</td>
-                            <td className='text-secondary align-middle'>{presentation?.createdTime}</td>
-                            <td className='align-items-center'>
-                                <Dropdown className='m-auto'>
-                                    <Dropdown.Toggle id='dropdown-basic' className='icon-button'>
-                                        <FontAwesomeIcon size='xl' color='black'
-                                                         icon={faEllipsisH}></FontAwesomeIcon>
-                                    </Dropdown.Toggle>
+                                </td>
+                                <td onClick={() => navigate(`./${presentation.id}`)} className='text-secondary align-middle'>
+                                    {presentation?.user?.username}
+                                </td>
+                                <td className='text-secondary align-middle'>{presentation?.modifiedTime}</td>
+                                <td className='text-secondary align-middle'>{presentation?.createdTime}</td>
+                                <td className='align-items-center'>
+                                    <Dropdown className='m-auto'>
+                                        <Dropdown.Toggle id='dropdown-basic' className='icon-button'>
+                                            <FontAwesomeIcon size='xl' color='black' icon={faEllipsisH}></FontAwesomeIcon>
+                                        </Dropdown.Toggle>
 
-                                    <Dropdown.Menu>
-                                        <Dropdown.Item
-                                            onClick={() => onEditDropDownClick(presentation)}>Edit</Dropdown.Item>
-                                        <Dropdown.Item
-                                            onClick={() => onDeleteDropDownClick(presentation)}>Delete</Dropdown.Item>
-                                    </Dropdown.Menu>
-                                </Dropdown>
-                                {/*<Button className='icon-button'>*/}
-                                {/*</Button>*/}
-                            </td>
-                        </tr>
-                    ))}
+                                        <Dropdown.Menu>
+                                            <Dropdown.Item onClick={() => onEditDropDownClick(presentation)}>Edit</Dropdown.Item>
+                                            <Dropdown.Item onClick={() => onDeleteDropDownClick(presentation)}>Delete</Dropdown.Item>
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+                                    {/*<Button className='icon-button'>*/}
+                                    {/*</Button>*/}
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </Table>
             </div>
@@ -182,8 +165,7 @@ const Presentation = () => {
                         <Modal.Title>Add new presentation</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form.Control id='name-presentation' type='text'
-                                      placeholder='PresentationDetail name' {...register('namePresentation')} />
+                        <Form.Control id='name-presentation' type='text' placeholder='PresentationDetail name' {...register('namePresentation')} />
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant='secondary' onClick={() => setIsPresentationModalShow(false)}>
@@ -201,15 +183,13 @@ const Presentation = () => {
                     <Modal.Title>Delete "{choosenPresentation?.name}"</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p className='text-secondary'>This will permanently delete "{choosenPresentation?.name}" and any
-                        results.</p>
+                    <p className='text-secondary'>This will permanently delete "{choosenPresentation?.name}" and any results.</p>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant='outline-secondary' onClick={() => setIsPresentationDeleteModalShow(false)}>
                         Close
                     </Button>
-                    <Button type={'submit'} onClick={() => onDeletePresentationClick(choosenPresentation)}
-                            variant='danger'>
+                    <Button type={'submit'} onClick={() => onDeletePresentationClick(choosenPresentation)} variant='danger'>
                         Delete
                     </Button>
                 </Modal.Footer>
@@ -221,8 +201,7 @@ const Presentation = () => {
                         <Modal.Title>Rename {choosenPresentation?.name}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form.Control id='name-presentation' type='text'
-                                      placeholder='PresentationDetail name' {...register('nameEditPresentation')} />
+                        <Form.Control id='name-presentation' type='text' placeholder='PresentationDetail name' {...register('nameEditPresentation')} />
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant='outline-secondary' onClick={() => setIsPresentationEditModalShow(false)}>

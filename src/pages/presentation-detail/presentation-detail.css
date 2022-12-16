@@ -6,11 +6,13 @@
 #left-pane {
     border-right: 2px solid rgb(231, 232, 235);
     background-color: #ffffff;
+    max-height: 30% !important;
 }
 
 #center-pane {
     background-color: #ffffff;
     border-right: 2px solid rgb(231, 232, 235);
+    height: 70%;
 }
 
 #right-pane {
@@ -39,5 +41,11 @@
     background-color: #ffffff;
 }
 .content-wapper {
-    height: 80%;
+    /* height: 50%; */
+}
+.list-group {
+    /* max-height: 80% !important; */
+    height: 80vh !important;
+    overflow: hidden !important;
+    overflow-y: scroll !important;
 }

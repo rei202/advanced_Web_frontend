@@ -11,7 +11,7 @@ const ListGroupView = ({ props }) => {
                 {props.map((value, index) => (
                     <Col key={index}>
                         <div className='group-item' style={{ color: 'black' }}>
-                            <Link to={'/group?id=' + value.group.id} style={{ color: 'black', textDecoration: 'none' }}>
+                            <Link to={'/group/' + value.group.id} style={{ color: 'black', textDecoration: 'none' }}>
                                 <GroupView props={value.group}></GroupView>
                             </Link>
                         </div>

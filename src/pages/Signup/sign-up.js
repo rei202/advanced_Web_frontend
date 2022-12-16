@@ -66,7 +66,7 @@ function Signup() {
                 <form action="" hidden={isRegistereSuccess} onSubmit={handleSubmit(onSubmit)}>
                     <h3>Sign up</h3>
                     <div className="form-group">
-                        <label>Username</label>
+                        <label style={{ color: 'black' }}>Username</label>
                         <input
                             id="username"
                             type="text"
@@ -78,7 +78,7 @@ function Signup() {
                         <span style={{color: "red"}}>{errors.username?.message}</span>
                     </div>
                     <div className="form-group">
-                        <label>Full Name</label>
+                        <label style={{ color: 'black' }}>Full Name</label>
                         <input
                             id="full-name"
                             type="text"
@@ -90,7 +90,7 @@ function Signup() {
                         <span style={{color: "red"}}>{errors.fullname?.message}</span>
                     </div>
                     <div className="form-group">
-                        <label>Email</label>
+                        <label style={{ color: 'black' }}>Email</label>
                         <input
                             id="emailAddress"
                             type="email"
@@ -102,7 +102,7 @@ function Signup() {
                         <span style={{color: "red"}}>{errors.email?.message}</span>
                     </div>
                     <div className="form-group">
-                        <label>Password</label>
+                        <label style={{ color: 'black' }}>Password</label>
                         <input
                             id="password"
                             type="password"
@@ -114,7 +114,7 @@ function Signup() {
                         <span style={{color: "red"}}>{errors.password?.message}</span>
                     </div>
                     <div className="form-group">
-                        <label>Confirm Password</label>
+                        <label style={{ color: 'black' }}>Confirm Password</label>
                         <input
                             id="confirm-password"
                             type="password"

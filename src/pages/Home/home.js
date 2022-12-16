@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import CreGroupCenteredModal from '../../component/list/Modal/CreGroupCenteredModal';
+import EmptyNotification from '../../component/EmptyNotification';
 function Home() {
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -46,7 +47,7 @@ function Home() {
 
     return (
         <>
-            {console.log('mounting')}
+            {console.log(listMyGroup.length)}
             <div className='admin-title-wapper'>
                 <h3 className='role-title'>Your Own</h3>
                 <div className='cre-group-btn-wapper'>
@@ -57,10 +58,15 @@ function Home() {
                 </div>
             </div>
             <hr />
-            <ListGroupView props={listMyGroup} />
+            {listMyGroup.length === 0 ? <EmptyNotification props={'Nothing to show. Try to add one'} /> : <ListGroupView props={listMyGroup} />}
+
             <h3 className='role-title'>Participation</h3>
             <hr />
-            <ListGroupView props={listParticipating} />
+            {listParticipating.length === 0 ? (
+                <EmptyNotification props={"Nothing to show. Let's participate some groups "} />
+            ) : (
+                <ListGroupView props={listParticipating} />
+            )}
 
             <CreGroupCenteredModal handler={handleCreateGroup} show={showModal} onHide={() => setShowModal(false)} />
         </>

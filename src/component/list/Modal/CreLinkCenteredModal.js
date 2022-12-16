@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import useAxios from '../../../hooks/useAxios';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 const schema = yup
     .object({
         // webLink: yup.string().max(12, 'Group name must be at most 12 characters').min(6, 'Group name must be at least 6 characters').required(),
@@ -13,7 +13,7 @@ const schema = yup
     .required();
 
 function CreLinkCenteredModal(props) {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const { id } = useParams();
     const [textLink, setTextLink] = useState('');
     const axios = useAxios();
     const {
@@ -24,23 +24,11 @@ function CreLinkCenteredModal(props) {
         resolver: yupResolver(schema),
     });
 
-    useEffect(() => {
-            axios
-                .get('/api/group/link/' + searchParams.get('id'))
-                .then((res) => {
-                    setTextLink(res.data);
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-    }, []);
-
     const onSubmitData = (data) => {
         axios
-            .post('/api/group/2', data)
+            .get('/api/group/send-inviting-mail?groupId=' + id + '&email=' + data.email)
             .then((res) => {
                 console.log(res);
-                props.handler(res.data);
                 props.onHide();
             })
             .catch((err) => console.log(err));
@@ -54,7 +42,7 @@ function CreLinkCenteredModal(props) {
                 <Modal.Body>
                     <Form.Label>Link</Form.Label>
 
-                    <Card body>{textLink}</Card>
+                    <Card body>localhost:3000/invite/{id}</Card>
                     <Form.Group className='mb-3' controlId='exampleForm.ControlTextarea1'>
                         <Form.Label>Email</Form.Label>
                         <Form.Control as='input' {...register('email')} autoFocus />

@@ -5,8 +5,8 @@ import useAxios from '../../../hooks/useAxios';
 import { yupResolver } from '@hookform/resolvers/yup';
 const schema = yup
     .object({
-        groupName: yup.string().max(12, 'Group name must be at most 12 characters').min(6, 'Group name must be at least 6 characters').required(),
-        description: yup.string().max(32, 'Description must be at most 12 characters').min(6, 'Description must be at least 6 characters').required(),
+        groupName: yup.string().max(20, 'Group name must be at most 20 characters').min(6, 'Group name must be at least 6 characters').required(),
+        description: yup.string().max(32, 'Description must be at most 32 characters').min(6, 'Description must be at least 6 characters').required(),
     })
     .required();
 

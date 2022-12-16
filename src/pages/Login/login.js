@@ -1,7 +1,3 @@
-// import { useContext, useState } from 'react';
-// import { useNavigate, useLocation } from 'react-router-dom';
-// import { login } from '../../api/authApi';
-// import Context from '../../store/Context';
 import './login.css';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -13,6 +9,7 @@ import useAxios from '../../hooks/useAxios';
 import { Navigate, useNavigate } from 'react-router';
 import { useState } from 'react';
 import { Button, Spinner } from 'react-bootstrap';
+import googleIcon from '../../assets/images/google.png';
 
 const schema = yup
     .object({
@@ -91,7 +88,7 @@ function Login() {
                     <h3>Log in</h3>
 
                     <div className='form-group'>
-                        <label>Username</label>
+                        <label style={{ color: 'black' }}>Username</label>
                         <input
                             id='username'
                             type='text'
@@ -103,7 +100,7 @@ function Login() {
                         <span style={{ color: 'red' }}>{errors.username?.message}</span>
                     </div>
                     <div className='form-group'>
-                        <label>Password</label>
+                        <label style={{ color: 'black' }}>Password</label>
                         <input
                             id='password'
                             type='password'
@@ -143,13 +140,13 @@ function Login() {
                     </p>
 
                     <p className='forgot-password text-right'>
-                        <Link to='/register'>Register now</Link>
+                        <Link to='/register' style={{ color: 'blue' }}>Register now</Link>
                     </p>
                     <hr style={{ width: '100%' }} />
                     <div className='text-other-signin'>Sign In with Social Media</div>
                     <div className='social-media-icon-white'>
                         <a href='https://advancedwebbackend-production-1b23.up.railway.app/oauth2/authorization/google'>
-                            <FontAwesomeIcon icon={faFacebook} />
+                            <img id='social-icon' src={googleIcon} />
                         </a>
                     </div>
                 </form>

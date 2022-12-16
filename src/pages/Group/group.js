@@ -8,7 +8,8 @@ import ListMemberView from '../../component/list/ListMemberView';
 import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CreLinkCenteredModal from '../../component/list/Modal/CreLinkCenteredModal';
-
+import { useParams } from 'react-router-dom';
+import EmptyNotification from '../../component/EmptyNotification';
 const Group = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     searchParams.get('id');
@@ -19,11 +20,11 @@ const Group = () => {
     const [showModal, setShowModal] = useState(false);
 
     const axios = useAxios();
-
+    const { id } = useParams();
     const handlerUpgrade = (data) => {
         const d = {
             username: data,
-            groupId: searchParams.get('id'),
+            groupId: id,
         };
         console.log(d);
         axios
@@ -46,7 +47,7 @@ const Group = () => {
     const handlerDelete = (data) => {
         const d = {
             username: data,
-            groupId: searchParams.get('id'),
+            groupId: id,
         };
         console.log(d);
         axios
@@ -65,7 +66,7 @@ const Group = () => {
 
     useEffect(() => {
         axios
-            .get('api/participant/1?' + searchParams)
+            .get('api/participant/1?id=' + id)
             .then((res) => {
                 console.log(res);
                 const userArr = res.data.userGroupList;
@@ -93,25 +94,30 @@ const Group = () => {
             <div className='admin-assignment-wapper'>
                 <h3 className='role-title'>Admin</h3>
                 <div className='cre-link-btn-wapper'>
-                    <Button
-                        variant='outline-info'
-                        onClick={() => setShowModal(true)}
-                    >
+                    <Button variant='outline-info' onClick={() => setShowModal(true)}>
                         {/* <FontAwesomeIcon icon={faPlusCircle} style={{ marginRight: '5px' }} /> */}
                         Invite participant
                     </Button>{' '}
                 </div>
             </div>
             <hr />
-            <ListOwnerView props={listOwner}></ListOwnerView>
+            {listOwner.length === 0 ? (
+                <EmptyNotification props={"Nothing to show. Let's participate some groups "} />
+            ) : (
+                <ListOwnerView props={listOwner}></ListOwnerView>
+            )}
             <h3 className='role-title'>Member</h3>
             <hr />
-            <ListMemberView
-                props={listMember}
-                myRole={myAccountInGroup.roleUserInGroup}
-                handlerDelete={handlerDelete}
-                handlerUpgrade={handlerUpgrade}
-            ></ListMemberView>
+            {listMember.length === 0 ? (
+                <EmptyNotification props={"There is no any member here !!"} />
+            ) : (
+                <ListMemberView
+                    props={listMember}
+                    myRole={myAccountInGroup.roleUserInGroup}
+                    handlerDelete={handlerDelete}
+                    handlerUpgrade={handlerUpgrade}
+                ></ListMemberView>
+            )}
             <CreLinkCenteredModal show={showModal} onHide={() => setShowModal(false)} />
         </>
     );

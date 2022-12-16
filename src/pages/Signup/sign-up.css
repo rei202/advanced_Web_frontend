@@ -74,9 +74,12 @@ html,
 }
 
 .signup-button {
-    background-color: #966a57;
+    height: 2rem;
+    width: 8rem;
+    background-color: #ff2e63;
     border: none;
     color: white;
     font-size: 16px;
     text-align: center;
+    border-radius: 12px;
 }

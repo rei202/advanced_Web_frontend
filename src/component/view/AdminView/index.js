@@ -1,6 +1,5 @@
-import thumnail from '../../../assets/images/group-thumnail.jpg';
+import thumnail from '../../../assets/images/admin.png';
 import './AdminView.css';
-
 
 const AdminView = ({ props }) => {
     return (
@@ -8,7 +7,7 @@ const AdminView = ({ props }) => {
             <div className='member-item'>
                 <div className='mi-info'>
                     <img src={thumnail} alt='#' width='40' height='40' />
-                    <span>{props.user.fullName}</span>
+                    <span style={{ marginLeft: '10px' }}> {props.user.fullName}</span>
                 </div>
                 <div>{props.roleUserInGroup === 'ROLE_OWNER' ? 'Owner' : 'Co-Owner'}</div>
             </div>
