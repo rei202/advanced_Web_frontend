@@ -8,8 +8,14 @@ import { Button } from 'react-bootstrap';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import CreGroupCenteredModal from '../../component/list/Modal/CreGroupCenteredModal';
 import EmptyNotification from '../../component/EmptyNotification';
+import useGroupApi from '../../api/useGroupApi';
 function Home() {
     const [searchParams, setSearchParams] = useSearchParams();
+    const groupApi = useGroupApi();
+    const [listMyGroup, setListMyGroup] = useState([]);
+    const [listParticipating, setListParticipating] = useState([]);
+    const axios = useAxios();
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         if (searchParams.has('access_token')) searchParams.delete('access_token');
@@ -18,7 +24,6 @@ function Home() {
         axios
             .get('api/group/1')
             .then((res) => {
-                console.log(res);
                 setListMyGroup(
                     res.data.filter((value) => {
                         return value.roleUserInGroup === 'ROLE_OWNER' || value.roleUserInGroup === 'ROLE_COOWNER';
@@ -34,15 +39,25 @@ function Home() {
                 console.log(err);
             });
     }, []);
-    const [listMyGroup, setListMyGroup] = useState([]);
-    const [listParticipating, setListParticipating] = useState([]);
-    const axios = useAxios();
-    const [showModal, setShowModal] = useState(false);
 
     console.log(listMyGroup);
 
     const handleCreateGroup = (data) => {
         setListMyGroup(listMyGroup.concat(data));
+    };
+    const handleDeleteGroup = (id) => {
+        const data = {
+            groupId: id,
+        };
+
+        groupApi.deleteGroup(data).then((res) => {
+            console.log(res);
+            setListMyGroup(
+                listMyGroup.filter((value) => {
+                    return value.group.id !== res.data.id;
+                })
+            );
+        });
     };
 
     return (
@@ -58,7 +73,11 @@ function Home() {
                 </div>
             </div>
             <hr />
-            {listMyGroup.length === 0 ? <EmptyNotification props={'Nothing to show. Try to add one'} /> : <ListGroupView props={listMyGroup} />}
+            {listMyGroup.length === 0 ? (
+                <EmptyNotification props={'Nothing to show. Try to add one'} />
+            ) : (
+                <ListGroupView handlerDeleteGroup={handleDeleteGroup} props={listMyGroup} />
+            )}
 
             <h3 className='role-title'>Participation</h3>
             <hr />
