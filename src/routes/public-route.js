@@ -6,7 +6,7 @@ import Container from "react-bootstrap/Container";
 const PublicRoute: FC<{ children: React.ReactElement }> = ({ children }) => {
     const navigate = useNavigate();
     if (localStorage.getItem('token') && localStorage.getItem('token') != "") {
-        return <Navigate to='/group'/>;
+        return <Navigate to='/'/>;
     }
     else {
         return (

@@ -4,10 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretRight, faChartColumn, faEllipsisH, faPencil, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Cell, LabelList } from 'recharts';
 import { useEffect, useState } from 'react';
-import useAxios from '../../../hooks/useAxios';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
 import useContentApi from "../../../api/useContentApi";
+import {ROOT_URL} from "../../../constant/common.const";
 
 var stompClient = null;
 
@@ -38,7 +38,7 @@ const SlideShow = (props) => {
 
     const connect = () => {
         // let Sock = new SockJS('https://advancedwebbackend-production-1b23.up.railway.app/ws');
-        let Sock = new SockJS('http://localhost:8080/ws');
+        let Sock = new SockJS(`${ROOT_URL}/ws`);
         stompClient = over(Sock);
         stompClient.connect({}, onConnected, onError);
     };

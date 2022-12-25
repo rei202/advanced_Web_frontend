@@ -4,7 +4,7 @@ import {yupResolver} from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import {useNavigate} from "react-router";
 import useAxios from "../../hooks/useAxios";
-import {Button, Spinner} from "react-bootstrap";
+import {Button, Col, Row, Spinner} from "react-bootstrap";
 import {useState} from "react";
 import {ROOT_URL} from "../../constant/common.const";
 import {Link} from "react-router-dom";
@@ -40,7 +40,7 @@ function Signup() {
     const onSubmit = (data) => {
         setLoadingButton(true);
         setErrorMsg("");
-        axios.post('https://advancedwebbackend-production-1b23.up.railway.app/auth/register', data)
+        axios.post('/auth/register', data)
             .then(res => {
                 if (res.status == 200) {
                     // redirect to login page
@@ -49,8 +49,10 @@ function Signup() {
                     // navigate('/login');
 
                 }
+                console.log(res);
             })
             .catch(err => {
+                console.log(err.response.data.message);
                 setErrorMsg(err.response.data.message);
                 setLoadingButton(false);
             })
@@ -88,27 +90,14 @@ function Signup() {
             {/*                Forgot <a href="#">password?</a>*/}
             {/*            </p> *!/*/}
             {/*</form>*/}
-            {/*<div hidden={!isRegistereSuccess}>*/}
-            {/*    <p className='text-white'>Please access your gmail : "{getValues('emailAddress')}" and click links*/}
-            {/*        to activate your*/}
-            {/*        account</p>*/}
-            {/*    <p className='text-white'>*/}
-            {/*        If you don't receive any mail from us, please click "Resend" button*/}
-            {/*    </p>*/}
-            {/*    <Row>*/}
-            {/*        <Col>*/}
-            {/*            <Button variant={"info"} onClick={() => onResendClickBtn()}>Resend</Button>*/}
-            {/*        </Col>*/}
-            {/*        <Col>*/}
-            {/*            <Button variant={"info"} onClick={() => navigate('/login')}>login</Button>*/}
-            {/*        </Col>*/}
-            {/*    </Row>*/}
-            {/*</div>*/}
 
-            <form action='' onSubmit={handleSubmit(onSubmit)}
-                  hidden={isRegistereSuccess}
-                  style={{maxWidth: '568px', width: '100%'}}>
-                <div className='inner'>
+
+
+
+            <div className='inner'>
+                <form action='' onSubmit={handleSubmit(onSubmit)}
+                      hidden={isRegistereSuccess}
+                      style={{maxWidth: '568px', width: '100%'}}>
                     <h1 className='text-center'>Create a free account</h1>
                     <div style={{marginLeft: '104px', marginRight: '104px'}}
                          className='mt-5'>
@@ -203,11 +192,10 @@ function Signup() {
                                 {...register("confirmPassword")}
                                 // onChange={(e) => handleUserChange(e)}
                             />
-                            <span style={{color: "red"}}>
-              {errors.confirmPassword?.message}
-            </span>
+                            <span style={{color: "red"}}>{errors.confirmPassword?.message}</span>
                         </div>
-                        <div className="d-grid gap-2 mt-4" style={{padding: '5px'}}>
+                        <p className='text-danger text-end mb-0 mt-3'>{errorMsg}</p>
+                        <div className="d-grid gap-2 mt-1" style={{padding: '5px'}}>
                             <Button variant='primary' type='submit'
                                     disabled={loadingButton}>
                                 <Spinner size='sm' animation='border' role='status' aria-hidden='false'
@@ -230,15 +218,32 @@ function Signup() {
                         </Link>
 
                     </p>
-                    {/*<div className='social-media-icon-white'>*/}
-                    {/*    <a href='https://advancedwebbackend-production-1b23.up.railway.app/oauth2/authorization/google'>*/}
-                    {/*        <FontAwesomeIcon icon={faFacebook}/>*/}
-                    {/*    </a>*/}
-                    {/*</div>*/}
+                </form>
 
+                <div style={{maxWidth : '568px', width : '100%'}}
+                     hidden={!isRegistereSuccess}>
+                    <h1 className='text-center'>Verify account by Gmail</h1>
+                    <div style={{marginLeft : '104px', marginRight : '104px'}}
+                         className='mt-5'>
+                        <p >Please access your gmail : "{getValues('emailAddress')}" and click links
+                            to activate your
+                            account</p>
+                        <p>
+                            If you don't receive any mail from us, please click "Resend" button
+                        </p>
+                        <Row>
+                            <Col>
+                                <Button variant="outline-primary" onClick={() => navigate('/login')}>login</Button>
+                            </Col>
+                            <Col>
+                                <Button variant="primary" onClick={() => onResendClickBtn()}>Resend</Button>
+                            </Col>
+                        </Row>
+                    </div>
                 </div>
+            </div>
 
-            </form>
+
         </div>
 
     );

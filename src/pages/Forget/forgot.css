@@ -1,0 +1,90 @@
+* {
+    box-sizing: border-box;
+}
+
+body,
+html,
+.App,
+#root,
+.outer {
+    width: 100%;
+    height: 100%;
+}
+
+.outer {
+    padding: 32px 16px;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    text-align: left;
+}
+
+.inner {
+    max-width: 568px;
+    width: 100%;
+
+}
+
+.outer .form-control:focus {
+    border-color: #167bff;
+    box-shadow: none;
+}
+
+.outer h3 {
+    text-align: center;
+    margin: 0;
+    line-height: 1;
+    padding-bottom: 20px;
+}
+
+.form-group {
+    padding: 5px;
+}
+
+ 
+.custom-control-label {
+    font-weight: 400;
+}
+
+.forgot-password,
+.forgot-password a {
+    text-align: right;
+    font-size: 16px !important;
+    padding-top: 10px;
+    color: #ff4444;
+    margin: 0;
+}
+
+.forgot-password a {
+    color: #167bff;
+}
+
+.btn-wapper {
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+}
+
+.login-button {
+    background-color: #966a57;
+    border: none;
+    margin-top: 10px;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+}
+
+.text-other-signin {
+    text-align: center;
+}
+.social-media-icon-white a {
+    display: flex;
+    margin-top: 10px;
+    justify-content: center !important;
+    text-align: center;
+    color: #4267b2;
+    font-size: 3rem;
+}
+#social-icon {
+    height: 3rem;
+}

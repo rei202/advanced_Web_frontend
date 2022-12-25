@@ -8,7 +8,7 @@ import {
 } from 'react-bootstrap';
 import {CaretRightSquareFill} from 'react-bootstrap-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faEllipsisH} from '@fortawesome/free-solid-svg-icons';
+import {faEllipsisH, faPlus} from '@fortawesome/free-solid-svg-icons';
 import {useEffect, useState} from 'react';
 import * as yup from 'yup';
 import {useForm} from 'react-hook-form';
@@ -105,10 +105,11 @@ const Presentation = () => {
 
     return (
         <>
-            <p className='text-start'>My PresentationDetail</p>
+            <p className='text-start'>My Presentations</p>
             <div className='d-flex flex-row justify-content-between me-5'
                  style={{marginTop: '32px', marginBottom: '32px'}}>
                 <Button className='me-4' onClick={() => setIsPresentationModalShow(true)}>
+                    <FontAwesomeIcon icon={faPlus} className='me-2'/>
                     New Presentation
                 </Button>
             </div>
@@ -133,7 +134,8 @@ const Presentation = () => {
                             <td>
                                 <div className='d-flex flex-row align-items-center'>
                                     <CaretRightSquareFill className='rounded-circle me-3 present-icon'
-                                                          size='24'></CaretRightSquareFill>
+                                                          size='24' onClick={() => navigate(`/presentation/${presentation.id}/present`)}>
+                                    </CaretRightSquareFill>
                                     <div className='d-flex flex-column'>
                                                     <span className='text-dark' style={{cursor: 'pointer'}}
                                                           onClick={() => navigate(`./${presentation.id}`)}>
@@ -143,10 +145,18 @@ const Presentation = () => {
                                     </div>
                                 </div>
                             </td>
-                            <td className='text-secondary align-middle'>{presentation?.user?.username}</td>
-                            <td className='text-secondary align-middle'>{presentation?.modifiedTime}</td>
-                            <td className='text-secondary align-middle'>{presentation?.createdTime}</td>
-                            <td className='align-items-center d-flex'>
+                            <td className='text-secondary' style={{verticalAlign : 'middle'}}>
+                                    {presentation?.user?.username}
+                            </td>
+
+                            <td className='text-secondary' style={{verticalAlign : 'middle'}}>
+                                {presentation?.modifiedTime}
+                            </td>
+
+                            <td className='text-secondary' style={{verticalAlign : 'middle'}}>
+                                {presentation?.createdTime}
+                            </td>
+                            <td style={{verticalAlign : 'middle'}}>
                                 <Dropdown>
                                     <Dropdown.Toggle id='dropdown-basic' className='icon-button'>
                                         <FontAwesomeIcon size='xl' color='black'
@@ -160,8 +170,6 @@ const Presentation = () => {
                                             onClick={() => onDeleteDropDownClick(presentation)}>Delete</Dropdown.Item>
                                     </Dropdown.Menu>
                                 </Dropdown>
-                                {/*<Button className='icon-button'>*/}
-                                {/*</Button>*/}
                             </td>
                         </tr>
                     ))}

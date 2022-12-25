@@ -20,6 +20,7 @@ const Profile = () => {
     const axios = useAxios();
     const [accountModel, setAccountModel] = useState(null);
     const [notSamePassword, setNotSamePassword] = useState(false);
+    const [successful, setSuccessful] = useState(false);
     const [loadingButton, setLoadingButton] = useState(false);
     const {
         register,
@@ -52,10 +53,12 @@ const Profile = () => {
     }, []);
     const onSubmit = (data) => {
         setNotSamePassword(false);
+        setSuccessful(false);
         setLoadingButton(true);
         axios
             .post('/api/user/edit-profile', data)
             .then((resp) => {
+                setSuccessful(true);
                 reset({
                     username: resp.data?.username,
                     emailAddress: resp.data?.emailAddress,
@@ -177,6 +180,10 @@ const Profile = () => {
                                         </Form.Group>
                                         <span style={{ color: 'red' }} hidden={!notSamePassword}>
                                             Old password is not correct !!
+                                        </span>
+
+                                        <span style={{ color: 'green' }} hidden={!successful}>
+                                            Edit profile successfully !!
                                         </span>
                                     </Card.Text>
                                 </Card.Body>

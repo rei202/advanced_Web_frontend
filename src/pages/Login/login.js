@@ -89,7 +89,6 @@ function Login() {
                 <div className='inner'>
                     <h1 className='text-center'>Welcome back!</h1>
                     <p className='text-center text-secondary'>Log in to your Mentimeter account</p>
-
                     <div style={{marginLeft : '104px', marginRight : '104px'}}>
                         <div className="d-grid gap-2 mt-4">
                             <Button href={`${ROOT_URL}/oauth2/authorization/google`}
@@ -127,7 +126,13 @@ function Login() {
                             />
                             <span style={{color: 'red'}}>{errors.password?.message}</span>
                         </div>
-                        <div className="d-grid gap-2 mt-4" style={{padding : '5px'}}>
+                        <p className='text-end'>
+                            <Link to='/forgot' className='text-decoration-none ms-2 text-primary'>
+                                Forgot password
+                            </Link>
+                        </p>
+
+                        <div className="d-grid gap-2" style={{padding : '5px'}}>
                             <Button variant='primary' type='submit'
                                     disabled={loadingButton}>
                                 <Spinner size='sm' animation='border' role='status' aria-hidden='false' className='spinner'
@@ -149,14 +154,7 @@ function Login() {
                         </Link>
 
                     </p>
-                    {/*<div className='social-media-icon-white'>*/}
-                    {/*    <a href='https://advancedwebbackend-production-1b23.up.railway.app/oauth2/authorization/google'>*/}
-                    {/*        <FontAwesomeIcon icon={faFacebook}/>*/}
-                    {/*    </a>*/}
-                    {/*</div>*/}
-
                 </div>
-
             </form>
         </div>
     );

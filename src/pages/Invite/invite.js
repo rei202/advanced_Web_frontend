@@ -9,7 +9,7 @@ const Invite = () => {
         const groupId = localStorage.getItem('group_id');
         if (groupId) {
             axios
-                .get(`https://advancedwebbackend-production-1b23.up.railway.app/api/group/invite/${groupId}`)
+                .get(`/api/group/invite/${groupId}`)
                 .then((resp) => {
                     console.log();
                     navigate(`/group/${groupId}`);
