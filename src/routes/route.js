@@ -17,7 +17,6 @@ const privateRoutes = [
     { path: '/profile', element: Profile, haveLayout: true },
     { path: '/group/:id', element: Group, haveLayout: true },
     { path: '/invite/*', element: Invite },
-    { path: '/reset_password/:id', element: ResetPassword },
     { path: '/', element: Home, haveLayout: true },
     { path: '/presentation', element: Presentation, haveLayout: true },
     { path: '/presentation/:id', element: PresentationDetail },
@@ -30,6 +29,7 @@ const privateRoutes = [
 const publicRoutes = [
     { path: '/register', element: Signup, haveLayout: true },
     { path: '/forgot', element: Forgot, haveLayout: true },
+    { path: '/reset_password/:id', element: ResetPassword },
     { path: '/login', element: Login, haveLayout: true },
 ];
 

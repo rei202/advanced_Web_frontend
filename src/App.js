@@ -1,5 +1,5 @@
 import "./App.css";
-import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
+import { Route, Routes} from "react-router-dom";
 import {privateRoutes, publicRoutes} from "./routes/route";
 import RequireAuth from "./routes/required-auth";
 import DefaultLayout from "./component/DefaultLayout/default-layout";
