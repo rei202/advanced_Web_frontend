@@ -1,13 +1,13 @@
 import './slide-show.css';
-import { Button, Col, ListGroup, Row } from 'react-bootstrap';
+import { Button, Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretRight, faChartColumn, faEllipsisH, faPencil, faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Cell, LabelList } from 'recharts';
+import { faPencil } from '@fortawesome/free-solid-svg-icons';
+import { Bar, ResponsiveContainer, XAxis, YAxis, BarChart, Cell, LabelList } from 'recharts';
 import { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
 import useContentApi from "../../../api/useContentApi";
-import {ROOT_URL} from "../../../constant/common.const";
+import {BACKEND_URL} from "../../../constant/common.const";
 
 var stompClient = null;
 
@@ -38,7 +38,7 @@ const SlideShow = (props) => {
 
     const connect = () => {
         // let Sock = new SockJS('https://advancedwebbackend-production-1b23.up.railway.app/ws');
-        let Sock = new SockJS(`${ROOT_URL}/ws`);
+        let Sock = new SockJS(`${BACKEND_URL}/ws`);
         stompClient = over(Sock);
         stompClient.connect({}, onConnected, onError);
     };

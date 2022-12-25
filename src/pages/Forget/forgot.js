@@ -4,7 +4,7 @@ import {useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {Button, Spinner} from 'react-bootstrap';
-import {ROOT_URL} from "../../constant/common.const";
+import {BACKEND_URL, ROOT_URL} from "../../constant/common.const";
 import {useNavigate} from "react-router";
 
 const schema = yup
@@ -51,7 +51,7 @@ function Forgot() {
                         </div>
 
                         <div className="d-grid gap-2 mt-1">
-                            <Button href={`${ROOT_URL}/oauth2/authorization/google`}
+                            <Button href={`${BACKEND_URL}/oauth2/authorization/google`}
                                     variant='primary'>
                                 <span className='ms-2'>Reset password</span>
                             </Button>

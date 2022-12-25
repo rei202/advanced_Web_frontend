@@ -6,7 +6,7 @@ import {useNavigate} from "react-router";
 import useAxios from "../../hooks/useAxios";
 import {Button, Col, Row, Spinner} from "react-bootstrap";
 import {useState} from "react";
-import {ROOT_URL} from "../../constant/common.const";
+import {BACKEND_URL, ROOT_URL} from "../../constant/common.const";
 import {Link} from "react-router-dom";
 
 const schema = yup
@@ -102,7 +102,7 @@ function Signup() {
                     <div style={{marginLeft: '104px', marginRight: '104px'}}
                          className='mt-5'>
                         <div className="d-grid gap-2 mt-4">
-                            <Button href={`${ROOT_URL}/oauth2/authorization/google`}
+                            <Button href={`${BACKEND_URL}/oauth2/authorization/google`}
                                     variant='outline-secondary'>
                                 <img
                                     src={'https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png'}

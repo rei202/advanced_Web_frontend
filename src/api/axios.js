@@ -1,7 +1,7 @@
 import axios from 'axios';
-import {ROOT_URL} from "../constant/common.const";
+import {BACKEND_URL, ROOT_URL} from "../constant/common.const";
 
 export default axios.create({
-    baseURL : `${ROOT_URL}`,
+    baseURL : `${BACKEND_URL}`,
     headers: { 'Content-Type': 'application/json' },
 });

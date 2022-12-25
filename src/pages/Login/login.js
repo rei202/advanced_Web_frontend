@@ -3,14 +3,11 @@ import {Link, useSearchParams} from 'react-router-dom';
 import {useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faFacebook, faGoogle} from '@fortawesome/free-brands-svg-icons';
 import useAxios from '../../hooks/useAxios';
 import {Navigate, useNavigate} from 'react-router';
 import {useState} from 'react';
 import {Button, Spinner} from 'react-bootstrap';
-import {ROOT_URL} from "../../constant/common.const";
-import {Image, Images} from "react-bootstrap-icons";
+import {BACKEND_URL, ROOT_URL} from "../../constant/common.const";
 
 const schema = yup
     .object({
@@ -91,7 +88,7 @@ function Login() {
                     <p className='text-center text-secondary'>Log in to your Mentimeter account</p>
                     <div style={{marginLeft : '104px', marginRight : '104px'}}>
                         <div className="d-grid gap-2 mt-4">
-                            <Button href={`${ROOT_URL}/oauth2/authorization/google`}
+                            <Button href={`${BACKEND_URL}/oauth2/authorization/google`}
                                     variant='outline-secondary' >
                                 <img src={'https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png'}
                                      style={{width : '25px', height : '25px', marginBottom : '3px'}}/>
