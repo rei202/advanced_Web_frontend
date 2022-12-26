@@ -1,20 +1,16 @@
 import './slide-present.css';
-import {
-    Button,
-    Col,
-    ListGroup, Row
-} from "react-bootstrap";
-import {Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Cell, LabelList} from "recharts";
-import {useEffect, useState} from "react";
-import useAxios from "../../../hooks/useAxios";
+import { Button, Col, ListGroup, Row } from 'react-bootstrap';
+import { Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Cell, LabelList } from 'recharts';
+import { useEffect, useState } from 'react';
+import useAxios from '../../../hooks/useAxios';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
-import {connect} from "net";
-import {useParams} from "react-router";
-import useSlideApi from "../../../api/useSlideApi";
-import UseContentApi from "../../../api/useContentApi";
-import useContentApi from "../../../api/useContentApi";
-import {ROOT_URL} from "../../../constant/common.const";
+import { useParams } from 'react-router';
+import useSlideApi from '../../../api/useSlideApi';
+import UseContentApi from '../../../api/useContentApi';
+import useContentApi from '../../../api/useContentApi';
+import { ROOT_URL } from '../../../constant/common.const';
+import Chat from '../../../component/Chat/Chat.js';
 
 var stompClient = null;
 
@@ -28,31 +24,32 @@ const SlidePresent = () => {
     const [optionVote, setOptionVote] = useState([]);
     const [maxValue, setMaxValue] = useState(0);
     const reloadOptionVote = () => {
-        slideApi.getSlideDetail(slideId)
-            .then(resp => {
+        slideApi
+            .getSlideDetail(slideId)
+            .then((resp) => {
                 setSlide(resp.data);
-                return resp.data
+                return resp.data;
             })
-            .then(resp => {
+            .then((resp) => {
                 return UseContentApi.getContentDetail(slide?.content?.id);
             })
-            .then(resp => {
-                const optionList = resp.data.map(data => {
+            .then((resp) => {
+                const optionList = resp.data.map((data) => {
                     if (data.option.numberVote + 6 > maxValue) setMaxValue(data.option.numberVote + 6);
-                    return data.option
+                    return data.option;
                 });
                 setOptionVote(optionList);
                 console.log(optionList);
             })
-            .catch(err => {
+            .catch((err) => {
                 console.log(err);
-            })
-    }
+            });
+    };
 
     useEffect(() => {
         connect();
-        reloadOptionVote()
-    }, [])
+        reloadOptionVote();
+    }, []);
 
     const connect = () => {
         let Sock = new SockJS(`${ROOT_URL}/ws`);
@@ -68,9 +65,9 @@ const SlidePresent = () => {
         console.log(payload);
         var payloadData = JSON.parse(payload.body);
         if (payloadData) {
-            const optionList = payloadData.map(data => {
+            const optionList = payloadData.map((data) => {
                 if (data.option.numberVote + 6 > maxValue) setMaxValue(data.option.numberVote + 6);
-                return data.option
+                return data.option;
             });
             setOptionVote(optionList);
         }
@@ -84,22 +81,29 @@ const SlidePresent = () => {
 
     return (
         <>
-            <Row style={{padding : '32px 32px 70px 32px', height : '100%'}}>
-                <div className='container-slide'>
-                    <p>Go to <b>http://localhost:3000/presentation-voting</b> and use the code <b>{slide?.id}</b></p>
-                    <p>
-                        <h1 className='text-start'>{slide?.content?.title}</h1>
-                    </p>
-                    <ResponsiveContainer width='60%'  aspect={2} className='d-flex align-items-center center-h'>
-                        <BarChart data={optionVote} width={200} height={200} >
-                            <XAxis dataKey={'name'}/>
-                            <YAxis type='number' domain={[0, maxValue]} hide />
-                            <Bar dataKey='numberVote' fill='#196cff' barSize={70}>
-                                <LabelList dataKey='numberVote' position='top'/>
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
+            <Row style={{ padding: '32px 32px 70px 32px', height: '100vh', width: '100%' }}>
+                <Col md={9} style={{ height: '100%' }}>
+                    <div className='container-slide'>
+                        <p>
+                            Go to <b>http://localhost:3000/presentation-voting</b> and use the code <b>{slide?.id}</b>
+                        </p>
+                        <p>
+                            <h1 className='text-start'>{slide?.content?.title}</h1>
+                        </p>
+                        <ResponsiveContainer width='60%' aspect={2} className='d-flex align-items-center center-h'>
+                            <BarChart data={optionVote} width={200} height={200}>
+                                <XAxis dataKey={'name'} />
+                                <YAxis type='number' domain={[0, maxValue]} hide />
+                                <Bar dataKey='numberVote' fill='#196cff' barSize={70}>
+                                    <LabelList dataKey='numberVote' position='top' />
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </Col>
+                <Col md={3} style={{ height: '100%' }}>
+                    <Chat className={'chat-pane'}> </Chat>
+                </Col>
             </Row>
         </>
     );

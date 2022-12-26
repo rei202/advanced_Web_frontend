@@ -44,7 +44,7 @@ const SlideShow = (props) => {
     };
 
     const onConnected = () => {
-        stompClient.subscribe(`/topic/${slide?.id}`, onPrivateMessage);
+        stompClient.subscribe(`/topic/slide/${slide?.id}`, onPrivateMessage);
     };
 
     const onPrivateMessage = (payload) => {

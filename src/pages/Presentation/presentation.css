@@ -42,9 +42,7 @@
     background-color: #ff2e63 !important;
     color: #ffffff !important;
 }
-.btn-primary {
-    background-color: #61c0bf;
-}
+
 
 .present-icon {
     color: rgb(219, 220, 225) !important;
@@ -59,15 +57,4 @@
 }
 
 
-.btn-primary:hover,
-.btn-primary:active,
-.btn-primary.active,
-.btn-primary:active:focus,
-.open > .dropdown-toggle.btn-primary {
-    background-color: #bbded6;
-    color: black;
-    /* border-color: #285e8e; set the color you want here */
-}
-.dropdown-toggle::after {
-    display: none;
-}
+

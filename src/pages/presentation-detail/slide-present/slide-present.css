@@ -18,7 +18,7 @@
     padding: 16px 24px 32px 24px;
 }
 
-.row-table{
+.row-table {
     border-style: none !important;
 }
 
@@ -28,17 +28,20 @@
 }
 
 .icon-button {
-    background : none;
+    background: none;
     border: none;
     margin: 0;
     padding: 0;
 }
 
 .container-slide {
-    height: 480px;
+    height: 100%;
     background-color: #ffffff;
+    border: 1px solid;
+    border-radius: 10px;
+    border-color: black;
 }
 
-.center-h{
+.center-h {
     margin: auto;
 }
