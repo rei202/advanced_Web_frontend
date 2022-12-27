@@ -23,6 +23,8 @@ const SlidePresent = () => {
     const [slide, setSlide] = useState();
     const [optionVote, setOptionVote] = useState([]);
     const [maxValue, setMaxValue] = useState(0);
+    const [chatList, setChatList] = useState(0);
+
     const reloadOptionVote = () => {
         slideApi
             .getSlideDetail(slideId)
@@ -56,9 +58,10 @@ const SlidePresent = () => {
         stompClient = over(Sock);
         stompClient.connect({}, onConnected, onError);
     };
-
+    const preSession = 3;
     const onConnected = () => {
-        stompClient.subscribe(`/topic/${slide?.id}`, onPrivateMessage);
+        stompClient.subscribe(`/topic/slide/${slide?.id}`, onPrivateMessage);
+        stompClient.subscribe(`/topic/chatroom/${preSession}`, onChatMessage);
     };
 
     const onPrivateMessage = (payload) => {
@@ -72,6 +75,13 @@ const SlidePresent = () => {
             setOptionVote(optionList);
         }
     };
+
+    const onChatMessage = (payload) => {
+        var payloadData = JSON.parse(payload.body);
+        console.log(3, chatList);
+        setChatList(chatList + 1);
+    };
+    console.log('abcd');
 
     const onError = (err) => {
         console.log(err);
@@ -87,9 +97,9 @@ const SlidePresent = () => {
                         <p>
                             Go to <b>http://localhost:3000/presentation-voting</b> and use the code <b>{slide?.id}</b>
                         </p>
-                        <p>
-                            <h1 className='text-start'>{slide?.content?.title}</h1>
-                        </p>
+
+                        <h1 className='text-start'>{slide?.content?.title}</h1>
+
                         <ResponsiveContainer width='60%' aspect={2} className='d-flex align-items-center center-h'>
                             <BarChart data={optionVote} width={200} height={200}>
                                 <XAxis dataKey={'name'} />
@@ -102,7 +112,9 @@ const SlidePresent = () => {
                     </div>
                 </Col>
                 <Col md={3} style={{ height: '100%' }}>
-                    <Chat className={'chat-pane'}> </Chat>
+                    <Chat chatList={chatList} className={'chat-pane'}>
+                        {' '}
+                    </Chat>
                 </Col>
             </Row>
         </>

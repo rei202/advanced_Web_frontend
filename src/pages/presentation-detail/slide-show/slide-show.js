@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import useAxios from '../../../hooks/useAxios';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
-import useContentApi from "../../../api/useContentApi";
+import useContentApi from '../../../api/useContentApi';
 
 var stompClient = null;
 
@@ -18,7 +18,8 @@ const SlideShow = (props) => {
     const [optionVote, setOptionVote] = useState([]);
     const [maxValue, setMaxValue] = useState(0);
     const reloadOptionVote = () => {
-        contentApi.getContentDetail(slide?.content?.id)
+        contentApi
+            .getContentDetail(slide?.content?.id)
             .then((resp) => {
                 const optionList = resp.data.map((data) => {
                     if (data.option.numberVote + 6 > maxValue) setMaxValue(data.option.numberVote + 6);
@@ -71,9 +72,9 @@ const SlideShow = (props) => {
                         <p>
                             Go to <b>http://localhost:3000/advanced_Web_frontend#/presentation-voting</b> and use the code <b>{slide?.id}</b>
                         </p>
-                        <p>
-                            <h2>{slide?.content?.title}</h2>
-                        </p>
+
+                        <h2>{slide?.content?.title}</h2>
+
                         <ResponsiveContainer width='60%' aspect={2} className='d-flex align-items-center center-h'>
                             <BarChart data={optionVote} width={200} height={200}>
                                 <XAxis dataKey={'name'} />
