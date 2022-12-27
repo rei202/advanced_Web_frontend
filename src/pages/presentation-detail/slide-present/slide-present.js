@@ -1,5 +1,5 @@
 import './slide-present.css';
-import { Button, Col, ListGroup, Row } from 'react-bootstrap';
+import { Button, Col, ListGroup, Row, Toast } from 'react-bootstrap';
 import { Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Cell, LabelList } from 'recharts';
 import { useEffect, useRef, useState } from 'react';
 import useAxios from '../../../hooks/useAxios';
@@ -11,13 +11,16 @@ import UseContentApi from '../../../api/useContentApi';
 import useContentApi from '../../../api/useContentApi';
 import { ROOT_URL } from '../../../constant/common.const';
 import Chat from '../../../component/Chat/Chat.js';
+import AutohideToast from '../../../component/view/Toast';
+import useSound from 'use-sound';
+import boopSfx from '../../../assets/audio/ring.mp3';
 
 var stompClient = null;
 var arr = [];
 var count = 0;
 const SlidePresent = () => {
     const messagesEndRef = useRef();
-
+    const [playRingTone] = useSound(boopSfx);
     const params = useParams();
     const slideApi = useSlideApi();
     const contentApi = useContentApi();
@@ -26,8 +29,9 @@ const SlidePresent = () => {
     const [slide, setSlide] = useState();
     const [optionVote, setOptionVote] = useState([]);
     const [maxValue, setMaxValue] = useState(0);
+    const [showToast, setShowToast] = useState(false);
     const [chatList, setChatList] = useState([]);
-    const [socketRerender, setSocketRerender] = useState(0);
+    const [socketRerender, setSocketRerender] = useState(0); //each receiving a message from socket, +1 then setChatlist
 
     const reloadOptionVote = () => {
         slideApi
@@ -87,11 +91,13 @@ const SlidePresent = () => {
     useEffect(() => {
         setChatList(arr);
         scrollToBottom();
+        playRingTone();
         console.log(chatList);
     }, [socketRerender]);
 
     const onChatMessage = (payload) => {
         var payloadData = JSON.parse(payload.body);
+        setShowToast(true);
         arr.push(payloadData);
         count = count + 1;
         setSocketRerender(count);
@@ -133,6 +139,7 @@ const SlidePresent = () => {
                         {' '}
                     </Chat>
                 </Col>
+                <AutohideToast show={showToast} setShow={setShowToast}></AutohideToast>
             </Row>
         </>
     );

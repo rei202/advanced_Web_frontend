@@ -29,7 +29,7 @@ const Chat = ({ chatList, messagesEndRef }) => {
                     {chatList.map((value, index) => (
                         <Message
                             key={index}
-                            isOwner={value.username !== localStorage.getItem('username') ? true : false}
+                            isOwner={value.username === localStorage.getItem('username') ? true : false}
                             username={value.username}
                             content={value.message}
                         />
