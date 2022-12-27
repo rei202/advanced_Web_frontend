@@ -9,6 +9,7 @@
     /* border-radius: 10px; */
     padding: 10px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 .input-chat-box {
     display: flex;

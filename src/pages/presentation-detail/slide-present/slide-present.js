@@ -1,7 +1,7 @@
 import './slide-present.css';
 import { Button, Col, ListGroup, Row } from 'react-bootstrap';
 import { Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Cell, LabelList } from 'recharts';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useAxios from '../../../hooks/useAxios';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
@@ -13,8 +13,11 @@ import { ROOT_URL } from '../../../constant/common.const';
 import Chat from '../../../component/Chat/Chat.js';
 
 var stompClient = null;
-
+var arr = [];
+var count = 0;
 const SlidePresent = () => {
+    const messagesEndRef = useRef();
+
     const params = useParams();
     const slideApi = useSlideApi();
     const contentApi = useContentApi();
@@ -23,7 +26,8 @@ const SlidePresent = () => {
     const [slide, setSlide] = useState();
     const [optionVote, setOptionVote] = useState([]);
     const [maxValue, setMaxValue] = useState(0);
-    const [chatList, setChatList] = useState(0);
+    const [chatList, setChatList] = useState([]);
+    const [socketRerender, setSocketRerender] = useState(0);
 
     const reloadOptionVote = () => {
         slideApi
@@ -46,6 +50,10 @@ const SlidePresent = () => {
             .catch((err) => {
                 console.log(err);
             });
+    };
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     useEffect(() => {
@@ -76,12 +84,21 @@ const SlidePresent = () => {
         }
     };
 
+    useEffect(() => {
+        setChatList(arr);
+        scrollToBottom();
+        console.log(chatList);
+    }, [socketRerender]);
+
     const onChatMessage = (payload) => {
         var payloadData = JSON.parse(payload.body);
-        console.log(3, chatList);
-        setChatList(chatList + 1);
+        arr.push(payloadData);
+        count = count + 1;
+        setSocketRerender(count);
     };
     console.log('abcd');
+    console.log(3, socketRerender);
+    console.log(4, arr);
 
     const onError = (err) => {
         console.log(err);
@@ -112,7 +129,7 @@ const SlidePresent = () => {
                     </div>
                 </Col>
                 <Col md={3} style={{ height: '100%' }}>
-                    <Chat chatList={chatList} className={'chat-pane'}>
+                    <Chat messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
                         {' '}
                     </Chat>
                 </Col>
