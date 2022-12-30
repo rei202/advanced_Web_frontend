@@ -1,0 +1,37 @@
+.chat-pane {
+    height: 100%;
+    border: 1px solid;
+    border-color: black;
+}
+.chat-container {
+    height: calc(100% - 50px) !important;
+    background-color: whitesmoke;
+    /* border-radius: 10px; */
+    padding: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.input-chat-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    width: 100%;
+    height: 50px;
+    padding: 10px;
+}
+
+.input-chat-box input {
+    width: 85%;
+}
+.send-btn-wapper {
+    height: 100%;
+    width: 15%;
+    padding: 3px;
+}
+.send-btn {
+    height: 100%;
+}
+.send-btn-wapper :hover {
+    color: #61c0bf;
+}

@@ -1,6 +1,7 @@
 import useAxios from '../../hooks/useAxios';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
+import {ROOT_URL} from '../../constant/common.const';
 
 const Invite = () => {
     const axios = useAxios();

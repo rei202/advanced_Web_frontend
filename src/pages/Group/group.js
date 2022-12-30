@@ -43,6 +43,28 @@ const Group = () => {
                 console.log(err);
             });
     };
+    const handlerDemote = (data) => {
+        const d = {
+            username: data,
+            groupId: id,
+        };
+        console.log(d);
+        axios
+            .post('/api/participant/4', d)
+            .then((res) => {
+                console.log(res);
+                const newOwnerList = listOwner.filter((value) => {
+                    return value.id !== res.data.id;
+                });
+                const newMemberList = listMember.concat(res.data);
+                setListMember(newMemberList);
+                setListOwner(newOwnerList);
+                // setListUser(res.data);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
     const handlerDelete = (data) => {
         const d = {
@@ -94,7 +116,7 @@ const Group = () => {
             <div className='admin-assignment-wapper'>
                 <h3 className='role-title'>Admin</h3>
                 <div className='cre-link-btn-wapper'>
-                    <Button variant='outline-info' onClick={() => setShowModal(true)}>
+                    <Button variant='primary' onClick={() => setShowModal(true)}>
                         {/* <FontAwesomeIcon icon={faPlusCircle} style={{ marginRight: '5px' }} /> */}
                         Invite participant
                     </Button>{' '}
@@ -104,12 +126,12 @@ const Group = () => {
             {listOwner.length === 0 ? (
                 <EmptyNotification props={"Nothing to show. Let's participate some groups "} />
             ) : (
-                <ListOwnerView props={listOwner}></ListOwnerView>
+                <ListOwnerView props={listOwner} myRole={myAccountInGroup.roleUserInGroup} handlerDemote={handlerDemote}></ListOwnerView>
             )}
             <h3 className='role-title'>Member</h3>
             <hr />
             {listMember.length === 0 ? (
-                <EmptyNotification props={"There is no any member here !!"} />
+                <EmptyNotification props={'There is no any member here !!'} />
             ) : (
                 <ListMemberView
                     props={listMember}
