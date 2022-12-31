@@ -5,7 +5,7 @@ const Messsage = ({ isOwner, username, content }) => {
     return (
         <>
             <div>
-                <div className={isOwner ? 'user-name owner' : 'user-name'}>{username}</div>
+                <div className={isOwner ? 'message-user-name owner' : 'message-user-name'}>{username}</div>
 
                 <div className={isOwner ? 'message owner' : 'message'}>
                     <div className='message-info'>

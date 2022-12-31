@@ -17,6 +17,7 @@ const SlideShow = (props) => {
     const contentApi = useContentApi();
     const [optionVote, setOptionVote] = useState([]);
     const [maxValue, setMaxValue] = useState(0);
+
     const reloadOptionVote = () => {
         contentApi
             .getContentDetail(slide?.content?.id)

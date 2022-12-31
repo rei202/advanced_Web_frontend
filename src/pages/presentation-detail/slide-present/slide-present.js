@@ -1,4 +1,4 @@
-import './slide-present.css';
+import './slide-present.scss';
 import { Button, Col, ListGroup, Row, Toast } from 'react-bootstrap';
 import { Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Cell, LabelList } from 'recharts';
 import { useEffect, useRef, useState } from 'react';
@@ -14,12 +14,20 @@ import Chat from '../../../component/Chat/Chat.js';
 import AutohideToast from '../../../component/view/Toast';
 import useSound from 'use-sound';
 import boopSfx from '../../../assets/audio/ring.mp3';
+import useChatApi from '../../../api/useChatApi';
+import Nav from 'react-bootstrap/Nav';
+import QuestionBox from '../../../component/Question/QuestionBox';
+import useQuestionApi from '../../../api/useQuestionApi';
 
 var stompClient = null;
-var arr = [];
+var chatArr = [];
+var questionArr = [];
+
 var count = 0;
 const SlidePresent = () => {
     const messagesEndRef = useRef();
+    const questionEndRef = useRef();
+
     const [playRingTone] = useSound(boopSfx);
     const params = useParams();
     const slideApi = useSlideApi();
@@ -31,7 +39,13 @@ const SlidePresent = () => {
     const [maxValue, setMaxValue] = useState(0);
     const [showToast, setShowToast] = useState(false);
     const [chatList, setChatList] = useState([]);
-    const [socketRerender, setSocketRerender] = useState(0); //each receiving a message from socket, +1 then setChatlist
+    const [questionList, setQuestionList] = useState([]);
+    const [isChoosingChatBox, setIsChoosingChatBox] = useState(true);
+    const [chatFlagRerender, setChatFlagRerender] = useState(0); //each receiving a message from socket, +1 then setChatlist
+    const chatApi = useChatApi();
+    const [quesFlagRerender, setQuesFlagRerender] = useState(0); //each receiving a question from socket, +1 then setQuestionlist
+    const quesitionApi = useQuestionApi();
+    const preSession = 8;
 
     const reloadOptionVote = () => {
         slideApi
@@ -56,24 +70,54 @@ const SlidePresent = () => {
             });
     };
 
-    const scrollToBottom = () => {
+    const scrollToBottomChat = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+    const scrollToBottomQuestion = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     useEffect(() => {
         connect();
+        loadOldMessage();
         reloadOptionVote();
+        loadOldQuestion()
+        return () => {
+            stompClient.unsubscribe(`/topic/slide/${slide?.id}`);
+            stompClient.unsubscribe(`/topic/chatroom/${preSession}`);
+            stompClient.unsubscribe(`/topic/question/${preSession}`);
+
+            stompClient.disconnect();
+        };
     }, []);
+    const loadOldMessage = () => {
+        chatApi.loadOldMessage(preSession).then((res) => {
+            chatArr = res.data;
+            setChatList(chatArr);
+            setTimeout(function () {
+                scrollToBottomChat();
+            }, 1000);
+        });
+    };
+    const loadOldQuestion = () => {
+        quesitionApi.loadOldQuesiton(preSession).then((res) => {
+            questionArr = res.data;
+            setQuestionList(questionArr);
+            setTimeout(function () {
+                scrollToBottomQuestion();
+            }, 1000);
+        });
+    };
 
     const connect = () => {
         let Sock = new SockJS(`${ROOT_URL}/ws`);
         stompClient = over(Sock);
         stompClient.connect({}, onConnected, onError);
     };
-    const preSession = 3;
     const onConnected = () => {
         stompClient.subscribe(`/topic/slide/${slide?.id}`, onPrivateMessage);
         stompClient.subscribe(`/topic/chatroom/${preSession}`, onChatMessage);
+        stompClient.subscribe(`/topic/question/${preSession}`, onQuestion);
     };
 
     const onPrivateMessage = (payload) => {
@@ -88,23 +132,47 @@ const SlidePresent = () => {
         }
     };
 
+    // useEffect(() => {
+    //     setChatList(chatArr);
+    //     scrollToBottom();
+    //     console.log(chatList);
+    // }, [socketRerender]);
+
     useEffect(() => {
-        setChatList(arr);
-        scrollToBottom();
-        playRingTone();
+        setChatList(chatArr);
+        if (chatArr.length !== 0)
+            if (chatArr[chatArr.length - 1].username !== localStorage.getItem('username')) {
+                playRingTone();
+                setShowToast(true);
+            }
+
+        scrollToBottomChat();
         console.log(chatList);
-    }, [socketRerender]);
+    }, [chatFlagRerender]);
 
     const onChatMessage = (payload) => {
         var payloadData = JSON.parse(payload.body);
-        setShowToast(true);
-        arr.push(payloadData);
+        chatArr.push(payloadData);
         count = count + 1;
-        setSocketRerender(count);
+        setChatFlagRerender(count);
     };
-    console.log('abcd');
-    console.log(3, socketRerender);
-    console.log(4, arr);
+    useEffect(() => {
+        setQuestionList(questionArr);
+        scrollToBottomQuestion();
+    }, [quesFlagRerender]);
+
+    const onQuestion = (payload) => {
+        var payloadData = JSON.parse(payload.body);
+        const checkFlag = questionArr.findIndex((value) => value.id === payloadData.id)
+        if (checkFlag === -1) {
+            questionArr.push(payloadData);
+        }
+        else {
+            questionArr[checkFlag] = payloadData;
+        }
+        count = count + 1;
+        setQuesFlagRerender(count);
+    };
 
     const onError = (err) => {
         console.log(err);
@@ -135,9 +203,31 @@ const SlidePresent = () => {
                     </div>
                 </Col>
                 <Col md={3} style={{ height: '100%' }}>
-                    <Chat messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
-                        {' '}
-                    </Chat>
+                    <div className='option-leftside-container'>
+                        <div
+                            className={isChoosingChatBox ? 'chatbox-option chosen' : 'chatbox-option'}
+                            onClick={() => {
+                                if (!isChoosingChatBox) setIsChoosingChatBox(true);
+                            }}
+                        >
+                            Chat box
+                        </div>
+                        <div
+                            className={!isChoosingChatBox ? 'questionbox-option chosen' : 'questionbox-option'}
+                            onClick={() => {
+                                if (isChoosingChatBox) setIsChoosingChatBox(false);
+                            }}
+                        >
+                            Question Box
+                        </div>
+                    </div>
+                    {isChoosingChatBox ? (
+                        <Chat messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
+                            {' '}
+                        </Chat>
+                    ) : (
+                        <QuestionBox questionEndRef={questionEndRef} questionList={questionList}></QuestionBox>
+                    )}
                 </Col>
                 <AutohideToast show={showToast} setShow={setShowToast}></AutohideToast>
             </Row>
