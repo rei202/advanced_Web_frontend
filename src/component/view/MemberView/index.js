@@ -17,22 +17,22 @@ const MemberView = ({ props, myRole, handlerUpgrade, handlerDelete }) => {
                     <img src={userIcon} alt='#' width='40' height='40' />
                     <span style={{ marginLeft: '10px' }}>{props.user.fullName}</span>
                 </div>
-                {!(myRole === 'ROLE_MEMBER') ? (
+                {myRole === 'ROLE_OWNER' ? (
                     <div className='assignment-btn-wapper'>
                         <Button
                             className='assignment-btn'
-                            variant='outline-info btn-sm'
+                            variant='primary btn-sm'
                             style={{ marginRight: '10px' }}
                             onClick={() => {
                                 handlerUpgrade(props.user.username);
                             }}
                         >
                             <FontAwesomeIcon icon={faFlag} className='role-assignnment-icon'></FontAwesomeIcon>
-                            Upgrade role
+                            promote role
                         </Button>
                         <Button
                             className='assignment-btn'
-                            variant='outline-info btn-sm'
+                            variant='primary btn-sm'
                             onClick={() => {
                                 handlerDelete(props.user.username);
                             }}

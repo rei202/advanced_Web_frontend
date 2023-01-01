@@ -1,15 +1,15 @@
-.assignment-btn {
-    padding-left: 0px;
+.member-item .assignment-btn {
+   text-align: center;
 }
 .member-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.role-assignnment-icon {
+.member-item .assignment-btn .role-assignnment-icon {
     height: 1rem;
     margin-right: 5px;
+    margin-left: 0px;
 }
-.assignment-btn-wapper {
-    /* padding: 10px; */
-}
+
+

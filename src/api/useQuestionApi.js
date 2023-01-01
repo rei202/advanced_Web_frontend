@@ -1,0 +1,14 @@
+import useAxios from '../hooks/useAxios';
+
+const useQuestionApi = () => {
+    const axios = useAxios();
+    const questionApi = {};
+    questionApi.postQuestion = (preSessionId, reqBody) => axios.post(`api/v1/question/create-question/${preSessionId}`, reqBody);
+    questionApi.loadOldQuesiton = (preSessionId) => axios.get(`api/v1/question/load-old-question/${preSessionId}`);
+    // quesitionApi.upVote =  (preSessionId, questionId) => axios.get(`api/v1/question/answer-question/${preSessionId}/${questionId}`);
+    questionApi.answerQuestion = (preSessionId, questionId) => axios.post(`api/v1/question/answer-question/${preSessionId}/${questionId}`);
+
+    return questionApi;
+};
+
+export default useQuestionApi;

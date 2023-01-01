@@ -1,9 +1,15 @@
-.member-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.admin-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
-.role-assignnment-icon {
-  margin-left: 30px;
-  font-size: 20pt;
+
+.admin-item .assignment-btn {
+    text-align: center;
+}
+
+.admin-item .assignment-btn .role-assignnment-icon {
+    height: 1rem;
+    margin-right: 5px;
+    margin-left: 5px;
 }
