@@ -5,12 +5,13 @@ import { useEffect, useRef, useState } from 'react';
 import useAxios from '../../../hooks/useAxios';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
-import {connect} from "net";
-import {useParams} from "react-router";
-import useSlideApi from "../../../api/useSlideApi";
-import UseContentApi from "../../../api/useContentApi";
-import useContentApi from "../../../api/useContentApi";
-import {BACKEND_URL, ROOT_URL} from "../../../constant/common.const";
+import { connect } from 'net';
+import { useParams } from 'react-router';
+import useSlideApi from '../../../api/useSlideApi';
+import UseContentApi from '../../../api/useContentApi';
+import useContentApi from '../../../api/useContentApi';
+import { BACKEND_URL, ROOT_URL } from '../../../constant/common.const';
+
 import Chat from '../../../component/Chat/Chat.js';
 import AutohideToast from '../../../component/view/Toast';
 import useSound from 'use-sound';
@@ -18,11 +19,11 @@ import boopSfx from '../../../assets/audio/ring.mp3';
 import useChatApi from '../../../api/useChatApi';
 import Nav from 'react-bootstrap/Nav';
 import QuestionBox from '../../../component/Question/QuestionBox';
-import useQuestionApi from '../../../api/useQuestionApi'
+import useQuestionApi from '../../../api/useQuestionApi';
 
 var stompClient = null;
 var chatArr = [];
-var questionArr = [];
+var questionPayload = null;
 
 var count = 0;
 const SlidePresent = () => {
@@ -33,7 +34,6 @@ const SlidePresent = () => {
     const params = useParams();
     const slideApi = useSlideApi();
     const contentApi = useContentApi();
-    const slideId = params.id;
     const axios = useAxios();
     const [slide, setSlide] = useState();
     const [optionVote, setOptionVote] = useState([]);
@@ -46,8 +46,10 @@ const SlidePresent = () => {
     const chatApi = useChatApi();
     const [quesFlagRerender, setQuesFlagRerender] = useState(0); //each receiving a question from socket, +1 then setQuestionlist
     const quesitionApi = useQuestionApi();
-    const preSession = 8;
+    const preId = params.id;
+    const slideId = 18;
 
+    console.log(slideId);
     const reloadOptionVote = () => {
         slideApi
             .getSlideDetail(slideId)
@@ -75,24 +77,24 @@ const SlidePresent = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
     const scrollToBottomQuestion = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        questionEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     useEffect(() => {
         connect();
         loadOldMessage();
         reloadOptionVote();
-        loadOldQuestion()
+        loadOldQuestion();
         return () => {
             stompClient.unsubscribe(`/topic/slide/${slide?.id}`);
-            stompClient.unsubscribe(`/topic/chatroom/${preSession}`);
-            stompClient.unsubscribe(`/topic/question/${preSession}`);
+            stompClient.unsubscribe(`/topic/chatroom/${preId}`);
+            stompClient.unsubscribe(`/topic/question/${preId}`);
 
             stompClient.disconnect();
         };
     }, []);
     const loadOldMessage = () => {
-        chatApi.loadOldMessage(preSession).then((res) => {
+        chatApi.loadOldMessage(preId).then((res) => {
             chatArr = res.data;
             setChatList(chatArr);
             setTimeout(function () {
@@ -101,9 +103,9 @@ const SlidePresent = () => {
         });
     };
     const loadOldQuestion = () => {
-        quesitionApi.loadOldQuesiton(preSession).then((res) => {
-            questionArr = res.data;
-            setQuestionList(questionArr);
+        quesitionApi.loadOldQuesiton(preId).then((res) => {
+            // questionArr = res.data;
+            setQuestionList(res.data);
             setTimeout(function () {
                 scrollToBottomQuestion();
             }, 1000);
@@ -117,8 +119,8 @@ const SlidePresent = () => {
     };
     const onConnected = () => {
         stompClient.subscribe(`/topic/slide/${slide?.id}`, onPrivateMessage);
-        stompClient.subscribe(`/topic/chatroom/${preSession}`, onChatMessage);
-        stompClient.subscribe(`/topic/question/${preSession}`, onQuestion);
+        stompClient.subscribe(`/topic/chatroom/${preId}`, onChatMessage);
+        stompClient.subscribe(`/topic/question/${preId}`, onQuestion);
     };
 
     const onPrivateMessage = (payload) => {
@@ -158,19 +160,25 @@ const SlidePresent = () => {
         setChatFlagRerender(count);
     };
     useEffect(() => {
-        setQuestionList(questionArr);
-        scrollToBottomQuestion();
+        if (questionPayload !== null) {
+            const index = questionList.findIndex((value) => value.id === questionPayload.id);
+            var questionArr = [...questionList];
+            if (index === -1) {
+                questionArr.push(questionPayload);
+                setTimeout(function () {
+                    scrollToBottomQuestion();
+                }, 500);
+            } else {
+                questionArr[index] = questionPayload;
+            }
+            setQuestionList(questionArr);
+        }
     }, [quesFlagRerender]);
 
     const onQuestion = (payload) => {
         var payloadData = JSON.parse(payload.body);
-        const checkFlag = questionArr.findIndex((value) => value.id === payloadData.id)
-        if (checkFlag === -1) {
-            questionArr.push(payloadData);
-        }
-        else {
-            questionArr[checkFlag] = payloadData;
-        }
+        questionPayload = payloadData;
+
         count = count + 1;
         setQuesFlagRerender(count);
     };
@@ -223,11 +231,11 @@ const SlidePresent = () => {
                         </div>
                     </div>
                     {isChoosingChatBox ? (
-                        <Chat messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
+                        <Chat preId={preId} messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
                             {' '}
                         </Chat>
                     ) : (
-                        <QuestionBox questionEndRef={questionEndRef} questionList={questionList}></QuestionBox>
+                        <QuestionBox preId={preId} setQuestionList={setQuestionList} questionEndRef={questionEndRef} questionList={questionList}></QuestionBox>
                     )}
                 </Col>
                 <AutohideToast show={showToast} setShow={setShowToast}></AutohideToast>

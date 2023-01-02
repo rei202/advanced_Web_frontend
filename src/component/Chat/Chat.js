@@ -6,11 +6,11 @@ import { over } from 'stompjs';
 import { useEffect, useRef, useState } from 'react';
 import useChatApi from '../../api/useChatApi';
 
-const Chat = ({ chatList, messagesEndRef }) => {
+const Chat = ({ chatList, messagesEndRef, preId }) => {
     const [dataInput, setDataInput] = useState('');
     const chatApi = useChatApi();
     const submitMessage = () => {
-        chatApi.sendMessage(8, { message: dataInput });
+        chatApi.sendMessage(preId, { message: dataInput });
         setDataInput('');
         // setTimeout(() => {
         //     scrollToBottom();

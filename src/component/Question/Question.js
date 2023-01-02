@@ -7,12 +7,23 @@ const Question = ({ preId, questionId, username, content, isAnswer, upVoteNum, d
     const handleAnswerQuestion = () => {
         questionApi.answerQuestion(preId, questionId);
     };
+    const handleUpVoteQuestion = () => {
+        questionApi.upVote(preId, questionId);
+    };
+    const handleConvertTime = (timeStamp) => {
+        const date = new Date(Number(timeStamp));
+        const dd = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+        const mm = date.getMonth() < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1;
+        const h = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
+        const m = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+        return dd + '/' + mm + '/' + date.getFullYear() + ' ' + h + ':' + m;
+    };
     return (
         <>
             <div>
                 <div className='question-main-content answer'>
                     <div className='question-avatar'>
-                        <div className='upvote-wapper'>
+                        <div onClick={() => handleUpVoteQuestion()} className='upvote-wapper'>
                             <img src={upVote}></img>
                         </div>
                         <div>{upVoteNum}</div>
@@ -20,7 +31,7 @@ const Question = ({ preId, questionId, username, content, isAnswer, upVoteNum, d
                     <div className='question-content'>
                         <div className='question-info'>
                             <div className='user-name'>{username}</div>
-                            <label className='post-time'>{datetime}</label>
+                            <label className='post-time'>{handleConvertTime(datetime)}</label>
                         </div>
                         <p>{content}</p>
                         <Button onClick={() => handleAnswerQuestion()} disabled={isAnswer} variant='primary' className='anwser-question-btn'>

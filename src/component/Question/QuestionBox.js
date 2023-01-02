@@ -2,7 +2,7 @@ import './question-box.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-regular-svg-icons';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
-
+import { Dropdown } from 'react-bootstrap';
 import Message from './Question';
 import { over } from 'stompjs';
 import { useEffect, useRef, useState } from 'react';
@@ -10,10 +10,13 @@ import useChatApi from '../../api/useChatApi';
 import Question from './Question';
 import useQuestionApi from '../../api/useQuestionApi';
 
-const QuestionBox = ({ questionList, questionEndRef }) => {
+const QuestionBox = ({ questionList, questionEndRef, setQuestionList, preId }) => {
     const [dataInput, setDataInput] = useState('');
+    const [isDescendingVoteSort, setIsDescendingVoteSort] = useState(false);
+    const [isRecentTimeFirstSort, setIsRecentTimeFirstSort] = useState(false);
+    const [isAnsweredSort, setIsAnsweredSort] = useState(false);
+
     const quesitionApi = useQuestionApi();
-    const preId = 8;
     const submitMessage = () => {
         quesitionApi.postQuestion(preId, {
             question: dataInput,
@@ -27,13 +30,74 @@ const QuestionBox = ({ questionList, questionEndRef }) => {
         if (e.key === 'Enter') submitMessage();
     };
 
+    const handleVoteSort = () => {
+        if (!isDescendingVoteSort) {
+            setQuestionList([...questionList].sort((a, b) => b.numberVote - a.numberVote));
+            setIsDescendingVoteSort(true);
+        } else {
+            setQuestionList([...questionList].sort((a, b) => a.numberVote - b.numberVote));
+            setIsDescendingVoteSort(false);
+        }
+    };
+
+    const handleTimeSort = () => {
+        if (!isRecentTimeFirstSort) {
+            setQuestionList([...questionList].sort((a, b) => Number(b.createdTime) - Number(a.createdTime)));
+            setIsRecentTimeFirstSort(true);
+        } else {
+            setQuestionList([...questionList].sort((a, b) => Number(a.createdTime) - Number(b.createdTime)));
+            setIsRecentTimeFirstSort(false);
+        }
+    };
+    const handleAnsweredSort = () => {
+        if (!isAnsweredSort) {
+            console.log(Number(questionList[1].datetime));
+            setQuestionList([...questionList].sort((a, b) => b.isAnswered - a.isAnswered));
+            setIsAnsweredSort(true);
+        } else {
+            setQuestionList([...questionList].sort((a, b) => a.isAnswered - b.isAnswered));
+            setIsAnsweredSort(false);
+        }
+    };
+
     return (
         <>
             <div className='chat-pane'>
                 <div className='chat-container'>
-                    <div>
-                        <FontAwesomeIcon icon={faFilter} style={{ height: '20px' }}></FontAwesomeIcon>
-                        Filter
+                    <div style={{ marginBottom: '10px' }}>
+                        {/* <FontAwesomeIcon icon={faFilter} style={{ height: '20px' }}></FontAwesomeIcon> */}
+                        <Dropdown align={'end'} style={{ textAlign: 'end' }}>
+                            <Dropdown.Toggle id='dropdown-basic' className='icon-button' style={{ color: 'black' }}>
+                                filter
+                                <FontAwesomeIcon style={{ marginLeft: '5px' }} color='black' icon={faFilter}></FontAwesomeIcon>
+                            </Dropdown.Toggle>
+
+                            <Dropdown.Menu style={{ fontSize: '14px' }}>
+                                <Dropdown.Item
+                                    onClick={() => {
+                                        handleAnsweredSort();
+                                    }}
+                                >
+                                    {' '}
+                                    {isAnsweredSort ? 'Unanswered' : 'Answered'}
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                    onClick={() => {
+                                        handleVoteSort();
+                                    }}
+                                >
+                                    {isDescendingVoteSort ? 'Ascending vote' : 'Descending vote'}
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                    onClick={() => {
+                                        handleTimeSort();
+                                    }}
+                                >
+                                    {' '}
+                                    {isRecentTimeFirstSort ? 'Old time' : 'Recent time'}
+                                </Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
                     </div>
                     {questionList.map((value, index) => (
                         <Question
@@ -47,8 +111,6 @@ const QuestionBox = ({ questionList, questionEndRef }) => {
                             preId={preId}
                         />
                     ))}
-                    <Question isAnswer={true} username={'nhatks147'} content={'how many animal '} datetime={'19/12/2001 04:30'}></Question>
-
                     <div ref={questionEndRef} />
                 </div>
                 <div className={'input-chat-box'}>
