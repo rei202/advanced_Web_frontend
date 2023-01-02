@@ -37,7 +37,7 @@ const PresentationVotingDetail = () => {
                 // return axios.get('/api/v1/slide-type', {params: {contentId: contentId}})
             })
             .then(resp => {
-                const optionList = resp.data.map(data => data.option);
+                const optionList = resp?.data?.listContentMultipleChoice.map(data => data.option);
                 setListOptionVote(optionList);
             })
             .catch(err => {

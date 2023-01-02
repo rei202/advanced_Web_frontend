@@ -6,16 +6,10 @@ import { useEffect, useState } from 'react';
 
 const SlideWindow = (props) => {
     const listSlide = props.listSlide || [];
-    const choosenSlide = props.slide;
-    // useEffect(() => {
-    //     if (listSlide && listSlide.length > 0) {
-    //         setChoosenSlide(listSlide[0]);
-    //         props.onChoosenSlide(listSlide[0]);
-    //     }
-    // }, [listSlide])
+    const choosenSlideId = props.slideId;
 
     const isSlideActive = (slide) => {
-        return slide?.id == choosenSlide?.id;
+        return slide?.id == choosenSlideId;
     };
 
     const onSlideClick = (slide) => {
@@ -29,8 +23,8 @@ const SlideWindow = (props) => {
                     key={index}
                     as='li'
                     className={`p-0 border-0 ${isSlideActive(slide) ? 'active-slide' : 'non-active-slide'}`}
-                    onClick={() => onSlideClick(slide)}
-                >
+                    onClick={() => onSlideClick(slide)}>
+
                     <div className='d-flex slide-window' style={{ padding: '8px 0 8px 0' }}>
                         <div className='d-flex flex-column justify-content-between' md='auto'>
                             <div className='d-flex flex-column'>
@@ -43,8 +37,7 @@ const SlideWindow = (props) => {
                         <div className='flex-grow-1' style={{ padding: '8px' }}>
                             <div
                                 className='d-flex justify-content-center align-items-center'
-                                style={{ height: '100px', border: '1px solid rgb(183, 186, 194)', backgroundColor: 'white' }}
-                            >
+                                style={{ height: '100px', border: '1px solid rgb(183, 186, 194)', backgroundColor: 'white' }}>
                                 <FontAwesomeIcon icon={faChartColumn} size='2xl' />
                             </div>
                         </div>

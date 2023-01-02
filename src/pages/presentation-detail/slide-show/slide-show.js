@@ -1,31 +1,45 @@
 import './slide-show.css';
-import { Button, Col, ListGroup, Row } from 'react-bootstrap';
+import { Button, Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretRight, faChartColumn, faEllipsisH, faPencil, faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Cell, LabelList } from 'recharts';
+import { faPencil } from '@fortawesome/free-solid-svg-icons';
+import { Bar, ResponsiveContainer, XAxis, YAxis, BarChart, LabelList } from 'recharts';
 import { useEffect, useState } from 'react';
-import useAxios from '../../../hooks/useAxios';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
 import useContentApi from '../../../api/useContentApi';
+import Container from "react-bootstrap/Container";
 
 var stompClient = null;
 
 const SlideShow = (props) => {
-    const slide = props.slide;
+    const slideId = props.slideId;
     const stateChange = props.stateChange;
     const contentApi = useContentApi();
-    const [optionVote, setOptionVote] = useState([]);
+    const [listOptionVote, setListOptionVote] = useState([]);
+    const [slide, setSlide] = useState();
     const [maxValue, setMaxValue] = useState(0);
-    const reloadOptionVote = () => {
+    const [heading, setHeading] = useState("");
+    const [paragraph, setParagraph] = useState("");
+    const [subheading, setSubheading] = useState("");
+    const reloadContentDetail = () => {
         contentApi
-            .getContentDetail(slide?.content?.id)
+            .getContentDetail(slideId)
             .then((resp) => {
-                const optionList = resp.data.map((data) => {
-                    if (data.option.numberVote + 6 > maxValue) setMaxValue(data.option.numberVote + 6);
-                    return data.option;
-                });
-                setOptionVote(optionList);
+                const slideTmp = resp?.data?.content;
+                setSlide(slideTmp);
+                if (slideTmp.slideType == 1) {
+                    const optionList = resp?.data?.listContentMultipleChoice.map((data) => {
+                        if (data.option.numberVote + 6 > maxValue) setMaxValue(data.option.numberVote + 6);
+                        return data.option;
+                    });
+                    setListOptionVote(optionList);
+                } else if (slideTmp.slideType == 2) {
+                    setHeading(resp?.data?.heading);
+                    setParagraph(resp?.data?.paragraph);
+                } else {
+                    setHeading(resp?.data?.heading);
+                    setSubheading(resp?.data?.subheading);
+                }
             })
             .catch((err) => {
                 console.log(err);
@@ -33,9 +47,11 @@ const SlideShow = (props) => {
     };
 
     useEffect(() => {
-        if (slide) connect();
-        reloadOptionVote();
-    }, [slide, stateChange]);
+        if (slideId) {
+            connect();
+            reloadContentDetail();
+        }
+    }, [slideId, stateChange]);
 
     const connect = () => {
         // let Sock = new SockJS('https://advancedwebbackend-production-1b23.up.railway.app/ws');
@@ -45,7 +61,7 @@ const SlideShow = (props) => {
     };
 
     const onConnected = () => {
-        stompClient.subscribe(`/topic/slide/${slide?.id}`, onPrivateMessage);
+        stompClient.subscribe(`/topic/${slideId}`, onPrivateMessage);
     };
 
     const onPrivateMessage = (payload) => {
@@ -55,7 +71,7 @@ const SlideShow = (props) => {
                 if (data.option.numberVote + 6 > maxValue) setMaxValue(data.option.numberVote + 6);
                 return data.option;
             });
-            setOptionVote(optionList);
+            setListOptionVote(optionList);
         }
     };
 
@@ -64,26 +80,61 @@ const SlideShow = (props) => {
     };
 
     const maxCount = 200;
+
+    const slideShowMultipleChoiceUI = () => {
+        return (
+            <>
+                <h2>{slide?.title}</h2>
+                <ResponsiveContainer width='60%' aspect={2} className='d-flex align-items-center center-h'>
+                    <BarChart data={listOptionVote} width={200} height={200}>
+                        <XAxis dataKey={'name'} />
+                        <YAxis type='number' domain={[0, maxValue]} hide />
+                        <Bar dataKey='numberVote' fill='#196cff' barSize={70}>
+                            <LabelList dataKey='numberVote' position='top' />
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
+            </>
+        )
+    }
+
+    const slideShowParagraphUI = () => {
+        return (
+            <Container className={'h-75 d-flex flex-column align-items-center justify-content-center'}>
+                <h1>{heading}</h1>
+                <p>{paragraph}</p>
+            </Container>
+        )
+    }
+
+    const slideShowHeadingUI = () => {
+        return (
+            <Container className={'h-75 d-flex flex-column align-items-center justify-content-center'}>
+                <h1>{heading}</h1>
+                <p>{subheading}</p>
+            </Container>
+        )
+    }
+
+    const slideShowUI = () => {
+        if (slide?.slideType == 1) {
+            return slideShowMultipleChoiceUI();
+        } else if (slide?.slideType == 2) {
+            return slideShowParagraphUI();
+        } else {
+            return slideShowHeadingUI();
+        }
+    }
     return (
         <>
             <Row style={{ backgroundColor: 'rgb(219, 220, 225)', padding: '32px 32px 70px 32px', height: '90%' }}>
                 {!props.isEmtyList ? (
                     <div className='container-slide'>
                         <p>
-                            Go to <b>http://localhost:3000/advanced_Web_frontend#/presentation-voting</b> and use the code <b>{slide?.id}</b>
+                            Go to <b>http://localhost:3000/advanced_Web_frontend#/presentation-voting</b> and use the code <b>{slideId}</b>
                         </p>
 
-                        <h2>{slide?.content?.title}</h2>
-
-                        <ResponsiveContainer width='60%' aspect={2} className='d-flex align-items-center center-h'>
-                            <BarChart data={optionVote} width={200} height={200}>
-                                <XAxis dataKey={'name'} />
-                                <YAxis type='number' domain={[0, maxValue]} hide />
-                                <Bar dataKey='numberVote' fill='#196cff' barSize={70}>
-                                    <LabelList dataKey='numberVote' position='top' />
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
+                        {slideShowUI()}
                     </div>
                 ) : (
                     <div className='container-slide'>

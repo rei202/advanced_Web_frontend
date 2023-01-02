@@ -20,7 +20,7 @@ const PresentationDetail = () => {
     const [listSlide, setListSlide] = useState(
         [
             {
-                "id": 25,
+                "id": null,
                 "presentation": {
                     "id": 5,
                     "name": "presentation_1",
@@ -45,32 +45,7 @@ const PresentationDetail = () => {
         ]
     );
 
-    const [choosenSlide, setChoosenSlide] = useState(
-        {
-            "id": 25,
-            "test" : true,
-            "presentation": {
-                "id": 5,
-                "name": "presentation_1",
-                "user": {
-                    "id": 2,
-                    "username": "nhatcuongti",
-                    "emailAddress": "nhatcuongti@gmail.com",
-                    "facebookId": null,
-                    "fullName": "Bùi Nguyễn Nhật Hào",
-                    "image": null,
-                    "activate": true
-                },
-                "modifiedTime": null,
-                "createdTime": null
-            },
-            "content": {
-                "id": 25,
-                "slideType": 1,
-                "title": "Multiple choice"
-            }
-        },
-    );
+    const [choosenSlideId, setChoosenSlideId] = useState(null);
     const [isEmtyList, setIsEmtyList] = useState(false);
     const [stateChange, setStateChange] = useState(true);
     const reloadListSlide =() => {
@@ -79,8 +54,9 @@ const PresentationDetail = () => {
                 setListSlide(resp.data);
                 if (resp.data.length === 0) setIsEmtyList(true);
                 else {
-                    if (choosenSlide?.test) setChoosenSlide(resp.data[0])
-                    else if (choosenSlide) setChoosenSlide(resp.data.filter(data => data.id == choosenSlide.id)[0])
+                    // if (!choosenSlideId) setChoosenSlideId(resp.data[0].id)
+                    // else if (choosenSlideId) setChoosenSlideId(resp.data.filter(data => data.id == choosenSlideId.id)[0].id)
+                    setChoosenSlideId(resp.data[0].id);
                     setIsEmtyList(false);
                 }
             })
@@ -90,7 +66,7 @@ const PresentationDetail = () => {
 
     useEffect(() => {
         reloadListSlide();
-    }, [stateChange]);
+    }, []);
 
     const onAddNewSlideClick = () => {
         slideApi.addNewSlide( { preId: preId, slideType: 1, title: 'Multiple choice' })
@@ -98,7 +74,7 @@ const PresentationDetail = () => {
                 if (resp.data) {
                     listSlide.push(resp.data);
                     setListSlide([...listSlide]);
-                    setChoosenSlide(listSlide.at(-1));
+                    setChoosenSlideId(listSlide.at(-1).id);
                 }
             })
             .catch((err) => {
@@ -107,7 +83,7 @@ const PresentationDetail = () => {
     };
 
     const onChoosenSlideClick = (slide) => {
-        if (slide) setChoosenSlide(slide);
+        if (slide) setChoosenSlideId(slide.id);
     };
 
     const onChangeValueOnRightOption = () => {
@@ -115,7 +91,7 @@ const PresentationDetail = () => {
     };
 
     const onDeleteSlideClick = () => {
-        slideApi.deleteSlide( { slideId: choosenSlide?.id })
+        slideApi.deleteSlide( { slideId: choosenSlideId })
             .then((resp) => {
                 const deleteSlide = resp.data;
                 const indexDeleteSlide = listSlide.findIndex(slide => slide.id == deleteSlide.id);
@@ -126,9 +102,7 @@ const PresentationDetail = () => {
                 if (listSlideAfterDelete.length > 0) {
                     choosenSlideAfterDelete = listSlideAfterDelete[(indexDeleteSlide == 0) ? 0 : indexDeleteSlide - 1];
                 }
-
-                setChoosenSlide(choosenSlideAfterDelete);
-
+                setChoosenSlideId(choosenSlideAfterDelete.id);
             })
             .catch((err) => {
                 console.log(err);
@@ -185,13 +159,13 @@ const PresentationDetail = () => {
             {/*Slide Show*/}
             <Row className='content-wapper'>
                 <Col id='left-pane' className='p-0' xs={2}>
-                    <SlideWindow listSlide={listSlide} slide={choosenSlide} onChoosenSlide={onChoosenSlideClick} />
+                    <SlideWindow listSlide={listSlide} slideId={choosenSlideId} onChoosenSlide={onChoosenSlideClick} />
                 </Col>
                 <Col id='center-pane' xs={7}>
-                    <SlideShow slide={choosenSlide} stateChange={stateChange} isEmtyList={isEmtyList} />
+                    <SlideShow slideId={choosenSlideId} stateChange={stateChange} isEmtyList={isEmtyList} />
                 </Col>
                 <Col id='right-pane' xs={3}>
-                    <SlideEdit slide={choosenSlide} changeValue={onChangeValueOnRightOption} />
+                    <SlideEdit slideId={choosenSlideId} changeValue={onChangeValueOnRightOption} />
                 </Col>
             </Row>
         </Container>

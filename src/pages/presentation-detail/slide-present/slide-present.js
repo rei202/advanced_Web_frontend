@@ -11,8 +11,6 @@ import useSlideApi from "../../../api/useSlideApi";
 import UseContentApi from "../../../api/useContentApi";
 import useContentApi from "../../../api/useContentApi";
 import {BACKEND_URL, ROOT_URL} from "../../../constant/common.const";
-
-import { ROOT_URL } from "../../../constant/common.const";
 import Chat from '../../../component/Chat/Chat.js';
 import AutohideToast from '../../../component/view/Toast';
 import useSound from 'use-sound';
