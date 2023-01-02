@@ -4,6 +4,6 @@
 
 
 //Local
-// export const ROOT_URL = 'http://localhost:3000/advanced_Web_frontend/#';
-// export const BACKEND_URL = 'http://localhost:3000/lapi';
-export const ROOT_URL = 'http://localhost:3000/lapi';
+export const ROOT_URL = 'http://localhost:3000/advanced_Web_frontend/#';
+export const BACKEND_URL = 'http://localhost:3000/lapi';
+// export const ROOT_URL = 'http://localhost:3000/lapi';

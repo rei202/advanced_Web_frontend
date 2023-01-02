@@ -6,9 +6,8 @@ import { Bar, ResponsiveContainer, XAxis, YAxis, BarChart, Cell, LabelList } fro
 import { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
-import useContentApi from "../../../api/useContentApi";
-import {BACKEND_URL} from "../../../constant/common.const";
-
+import useContentApi from '../../../api/useContentApi';
+import { BACKEND_URL } from '../../../constant/common.const';
 
 var stompClient = null;
 
