@@ -61,6 +61,8 @@ const PresentationDetail = () => {
                 }
             })
             .catch((err) => {
+                console.log(err);
+                if (err?.response?.status == 403) navigate('/presentation');
             });
     };
 
@@ -132,7 +134,7 @@ const PresentationDetail = () => {
                                     <Share size='20' className={'me-2'}></Share>
                                     <span>Share</span>
                                 </Button>
-                                <Button variant='primary' onClick={() => navigate(`./present`)}>
+                                <Button variant='primary' onClick={() => navigate(`/presenting/${preId}`)}>
                                     <FontAwesomeIcon className={'me-2'} icon={faCaretRight} size={'xl'} />
                                     <span>Present</span>
                                 </Button>

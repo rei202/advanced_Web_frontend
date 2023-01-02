@@ -1,25 +1,27 @@
 import './slide-present.scss';
-import { Button, Col, ListGroup, Row, Toast } from 'react-bootstrap';
-import { Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Cell, LabelList } from 'recharts';
+import {Button, Col, Row} from 'react-bootstrap';
+import { Bar, ResponsiveContainer, XAxis, YAxis, BarChart, LabelList } from 'recharts';
 import { useEffect, useRef, useState } from 'react';
 import useAxios from '../../../hooks/useAxios';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
-import { connect } from 'net';
 import { useParams } from 'react-router';
 import useSlideApi from '../../../api/useSlideApi';
 import UseContentApi from '../../../api/useContentApi';
 import useContentApi from '../../../api/useContentApi';
-import { BACKEND_URL, ROOT_URL } from '../../../constant/common.const';
+import { BACKEND_URL} from '../../../constant/common.const';
 
 import Chat from '../../../component/Chat/Chat.js';
 import AutohideToast from '../../../component/view/Toast';
 import useSound from 'use-sound';
 import boopSfx from '../../../assets/audio/ring.mp3';
 import useChatApi from '../../../api/useChatApi';
-import Nav from 'react-bootstrap/Nav';
 import QuestionBox from '../../../component/Question/QuestionBox';
 import useQuestionApi from '../../../api/useQuestionApi';
+import Container from "react-bootstrap/Container";
+import {Fonts} from "react-bootstrap-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faArrowLeft, faArrowRight} from "@fortawesome/free-solid-svg-icons";
 
 var stompClient = null;
 var chatArr = [];
@@ -33,40 +35,63 @@ const SlidePresent = () => {
     const [playRingTone] = useSound(boopSfx);
     const params = useParams();
     const slideApi = useSlideApi();
+    const chatApi = useChatApi();
+    const questionApi = useQuestionApi();
     const contentApi = useContentApi();
+
     const axios = useAxios();
+    const [listSlide, setListSlide] = useState([]);
     const [slide, setSlide] = useState();
-    const [optionVote, setOptionVote] = useState([]);
+    const [listOptionVote, setListOptionVote] = useState([]);
     const [maxValue, setMaxValue] = useState(0);
     const [showToast, setShowToast] = useState(false);
     const [chatList, setChatList] = useState([]);
+    const [content, setContent] = useState();
     const [questionList, setQuestionList] = useState([]);
     const [isChoosingChatBox, setIsChoosingChatBox] = useState(true);
     const [chatFlagRerender, setChatFlagRerender] = useState(0); //each receiving a message from socket, +1 then setChatlist
-    const chatApi = useChatApi();
+    const [heading, setHeading] = useState("");
+    const [paragraph, setParagraph] = useState("");
+    const [subheading, setSubheading] = useState("");
     const [quesFlagRerender, setQuesFlagRerender] = useState(0); //each receiving a question from socket, +1 then setQuestionlist
-    const quesitionApi = useQuestionApi();
     const preId = params.id;
-    const slideId = 18;
+    const [currentSlideId, setCurrentSlideId] = useState(0);
 
-    console.log(slideId);
-    const reloadOptionVote = () => {
-        slideApi
-            .getSlideDetail(slideId)
+    const reloadContentDetail = (slideId) => {
+        return slideApi.getSlideDetail(slideId)
             .then((resp) => {
                 setSlide(resp.data);
                 return resp.data;
             })
             .then((resp) => {
-                return UseContentApi.getContentDetail(slide?.content?.id);
+                return contentApi.getContentDetail(resp?.id);
             })
             .then((resp) => {
-                const optionList = resp.data.map((data) => {
-                    if (data.option.numberVote + 6 > maxValue) setMaxValue(data.option.numberVote + 6);
-                    return data.option;
-                });
-                setOptionVote(optionList);
-                console.log(optionList);
+                const contentTmp = resp?.data?.content;
+                setContent(contentTmp);
+                if (contentTmp.slideType == 1) {
+                    const optionList = resp?.data?.listContentMultipleChoice.map((data) => {
+                        if (data.option.numberVote + 6 > maxValue) setMaxValue(data.option.numberVote + 6);
+                        return data.option;
+                    });
+                    setListOptionVote(optionList);
+                } else if (contentTmp.slideType == 2) {
+                    setHeading(resp?.data?.heading);
+                    setParagraph(resp?.data?.paragraph);
+                } else {
+                    setHeading(resp?.data?.heading);
+                    setSubheading(resp?.data?.subheading);
+                }
+            })
+    }
+
+    const reloadData = () => {
+        slideApi
+            .getListSlide(preId)
+            .then((resp) => {
+                const listSlideTmp = resp.data;
+                setListSlide(resp.data);
+                return reloadContentDetail(listSlideTmp[currentSlideId].id);
             })
             .catch((err) => {
                 console.log(err);
@@ -83,7 +108,7 @@ const SlidePresent = () => {
     useEffect(() => {
         connect();
         loadOldMessage();
-        reloadOptionVote();
+        reloadData();
         loadOldQuestion();
         return () => {
             stompClient.unsubscribe(`/topic/slide/${slide?.id}`);
@@ -103,7 +128,7 @@ const SlidePresent = () => {
         });
     };
     const loadOldQuestion = () => {
-        quesitionApi.loadOldQuesiton(preId).then((res) => {
+        questionApi.loadOldQuesiton(preId).then((res) => {
             // questionArr = res.data;
             setQuestionList(res.data);
             setTimeout(function () {
@@ -131,7 +156,7 @@ const SlidePresent = () => {
                 if (data.option.numberVote + 6 > maxValue) setMaxValue(data.option.numberVote + 6);
                 return data.option;
             });
-            setOptionVote(optionList);
+            setListOptionVote(optionList);
         }
     };
 
@@ -189,26 +214,79 @@ const SlidePresent = () => {
 
     const maxCount = 200;
 
+    const slideShowMultipleChoiceUI = () => {
+        return (
+            <>
+                <h2>{slide?.content?.title}</h2>
+                <ResponsiveContainer width='60%' aspect={2} className='d-flex align-items-center center-h'>
+                    <BarChart data={listOptionVote} width={200} height={200}>
+                        <XAxis dataKey={'name'} />
+                        <YAxis type='number' domain={[0, maxValue]} hide />
+                        <Bar dataKey='numberVote' fill='#196cff' barSize={70}>
+                            <LabelList dataKey='numberVote' position='top' />
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
+            </>
+        )
+    }
+
+    const slideShowParagraphUI = () => {
+        return (
+            <Container className={'h-75 d-flex flex-column align-items-center justify-content-center'}>
+                <h1>{heading}</h1>
+                <p>{paragraph}</p>
+            </Container>
+        )
+    }
+
+    const slideShowHeadingUI = () => {
+        return (
+            <Container className={'h-75 d-flex flex-column align-items-center justify-content-center'}>
+                <h1>{heading}</h1>
+                <p>{subheading}</p>
+            </Container>
+        )
+    }
+
+    const slidePresentUi = () => {
+        if (content?.slideType == 1) {
+            return slideShowMultipleChoiceUI();
+        } else if (content?.slideType == 2) {
+            return slideShowParagraphUI();
+        } else {
+            return slideShowHeadingUI();
+        }
+    }
+
+    const onLeftArrowBtnClick = () => {
+        reloadContentDetail(listSlide[currentSlideId - 1].id)
+        setCurrentSlideId(currentSlideId - 1);
+    }
+
+    const onRightArrowBtnClick = () => {
+        reloadContentDetail(listSlide[currentSlideId + 1].id)
+        setCurrentSlideId(currentSlideId + 1);
+    }
     return (
         <>
             <Row style={{ padding: '32px 32px 70px 32px', height: '100vh', width: '100%' }}>
-                <Col md={9} style={{ height: '100%' }}>
+                <Col md={9} style={{ height: '100%', position: 'relative' }}>
                     <div className='container-slide'>
                         <p>
                             Go to <b>http://localhost:3000/presentation-voting</b> and use the code <b>{slide?.id}</b>
                         </p>
+                        {slidePresentUi()}
+                    </div>
+                    <div style={{position : 'absolute', bottom : '5%', left : '5%'}}
+                         className='utils-container d-flex justify-content-between p-3'>
+                        <Button  onClick={() => onLeftArrowBtnClick()} disabled={currentSlideId == 0}>
+                            <FontAwesomeIcon icon={faArrowLeft} size={"1x"} className='text-white me-4'/>
+                        </Button>
 
-                        <h1 className='text-start'>{slide?.content?.title}</h1>
-
-                        <ResponsiveContainer width='60%' aspect={2} className='d-flex align-items-center center-h'>
-                            <BarChart data={optionVote} width={200} height={200}>
-                                <XAxis dataKey={'name'} />
-                                <YAxis type='number' domain={[0, maxValue]} hide />
-                                <Bar dataKey='numberVote' fill='#196cff' barSize={70}>
-                                    <LabelList dataKey='numberVote' position='top' />
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
+                        <Button onClick={() => onRightArrowBtnClick()} disabled={currentSlideId == listSlide.length - 1}>
+                            <FontAwesomeIcon icon={faArrowRight} size={"1x"} className='text-white'/>
+                        </Button>
                     </div>
                 </Col>
                 <Col md={3} style={{ height: '100%' }}>
