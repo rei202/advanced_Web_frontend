@@ -1,0 +1,97 @@
+.question-main-content {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: flex-start;
+    
+    .question-avatar {
+        font-size: 12pt;
+        .upvote-wapper{
+            margin-top: 20px;
+            height: 35px;
+            width: 35px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            img {
+            width: 30px;
+            border-radius: 10px;
+            height: 20px;
+            // object-fit: cover;
+            display: flex;
+            justify-content: space-between;
+            }
+        }
+    }
+    .question-content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow-wrap: break-word;
+
+        /* gap: 10px; */
+        p {
+            background-color: white;
+            width: 100%;
+            height: 100%;
+            padding: 5px 10px;
+            margin-bottom: 0px;
+            margin-top: 0px;
+            border-radius: 0px 0px 0px 0px;
+            text-align: start;
+        }
+        .anwser-question-btn{
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            &:disabled{
+                background-color:#bbded6;
+                color: black;
+            }
+        }
+        
+    }
+    &.answer{
+        // background-color: #FFFDD9;
+        // .anwser-question-btn{
+        //     background-color: #FFFDD9;
+        //     color: black;
+        // }
+        
+        
+    }
+}
+
+
+
+.question-info{
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    .post-time{
+        color: #787C7E;
+        
+    }
+    .user-name {
+        text-align: start;
+        &.owner{
+            padding-right: 50px;
+            text-align:right;
+        }
+    }
+}
+
+
+
+
+/* .message,
+.owner p {
+    background-color: white;
+    padding: 5px 10px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    border-radius: 0 15px 15px 15px;
+    text-align: start;
+} */

@@ -7,7 +7,7 @@
     .message-info img {
         width: 30px;
         border-radius: 10px;
-        background-color: aqua;
+        background-color: #bbded6;
         height: 30px;
         object-fit: cover;
     }
@@ -31,13 +31,13 @@
     &.owner{
         flex-direction: row-reverse;
         p{
-            background-color: aqua;
+            background-color: #bbded6;
             border-radius: 15px 0px 15px 15px;
 
         }
     }
 }
-.user-name {
+.message-user-name {
     padding-left: 50px;
     text-align: start;
     &.owner{

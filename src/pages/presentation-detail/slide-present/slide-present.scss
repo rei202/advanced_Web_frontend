@@ -45,3 +45,41 @@
 .center-h {
     margin: auto;
 }
+
+.option-leftside-container {
+    display: flex;
+    flex-wrap: auto;
+    height: 30px;
+    align-items: center;
+}
+
+
+
+.chatbox-option{
+    flex: 50%;
+    border: 1px solid black;
+    border-top-left-radius: 10px;
+    background-color: #ffffff;
+    &:hover{
+        background-color: #bbded6;
+        color: black;    }
+    &.chosen{
+        background-color: #61c0bf;
+        color: #ffffff;
+
+    }
+}
+.questionbox-option{
+    flex: 50%;
+    border: 1px solid black;
+    border-top-right-radius: 10px;
+    background-color: #ffffff;
+    &:hover{
+        background-color: #bbded6;
+        color: black;    }
+    &.chosen{
+        background-color: #61c0bf;
+        color: #ffffff;
+
+    }
+}
