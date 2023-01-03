@@ -10,8 +10,8 @@ import PresentationVotingDetail from '../pages/presentation-voting/presentation-
 import SlidePresent from '../pages/presentation-detail/slide-present/slide-present';
 import Signup from '../pages/Signup/sign-up';
 import Login from '../pages/Login/login';
-import Forgot from "../pages/Forget/forgot";
-import ResetPassword from "../pages/reset_password/resets_password";
+import Forgot from '../pages/Forget/forgot';
+import ResetPassword from '../pages/reset_password/resets_password';
 
 const privateRoutes = [
     { path: '/profile', element: Profile, haveLayout: true },

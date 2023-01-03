@@ -6,13 +6,16 @@ import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
+import SocketProvider from './store/SocketProvider';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const queryClient = new QueryClient();
 root.render(
     <QueryClientProvider client={queryClient}>
         <HashRouter>
-            <App />
+            <SocketProvider>
+                <App />
+            </SocketProvider>
         </HashRouter>
     </QueryClientProvider>
 );

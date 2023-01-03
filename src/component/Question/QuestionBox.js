@@ -102,7 +102,7 @@ const QuestionBox = ({ questionList, questionEndRef, setQuestionList, preId }) =
                     {questionList.map((value, index) => (
                         <Question
                             key={index}
-                            username={value.presentation.user.username}
+                            username={value.presentationGroup.presentation.user.username}
                             content={value.question}
                             datetime={value.createdTime}
                             upVoteNum={value.numberVote}

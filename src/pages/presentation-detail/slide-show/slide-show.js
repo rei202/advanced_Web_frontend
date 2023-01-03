@@ -3,13 +3,12 @@ import { Button, Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencil } from '@fortawesome/free-solid-svg-icons';
 import { Bar, ResponsiveContainer, XAxis, YAxis, BarChart, LabelList } from 'recharts';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
 import useContentApi from '../../../api/useContentApi';
-import Container from "react-bootstrap/Container";
-
-var stompClient = null;
+import Container from 'react-bootstrap/Container';
+import SocketContext from '../../../store/Context';
 
 const SlideShow = (props) => {
     const slideId = props.slideId;
@@ -18,9 +17,11 @@ const SlideShow = (props) => {
     const [listOptionVote, setListOptionVote] = useState([]);
     const [slide, setSlide] = useState();
     const [maxValue, setMaxValue] = useState(0);
-    const [heading, setHeading] = useState("");
-    const [paragraph, setParagraph] = useState("");
-    const [subheading, setSubheading] = useState("");
+    const [heading, setHeading] = useState('');
+    const [paragraph, setParagraph] = useState('');
+    const [subheading, setSubheading] = useState('');
+    const stompClient = useContext(SocketContext);
+
     const reloadContentDetail = () => {
         contentApi
             .getContentDetail(slideId)
@@ -52,16 +53,21 @@ const SlideShow = (props) => {
             reloadContentDetail();
         }
     }, [slideId, stateChange]);
-
+    useEffect(() => {
+        return () => {
+            stompClient.unsubscribe(`/topic/slide/${slideId}`);
+        };
+    }, []);
     const connect = () => {
         // let Sock = new SockJS('https://advancedwebbackend-production-1b23.up.railway.app/ws');
-        let Sock = new SockJS('http://localhost:8080/ws');
-        stompClient = over(Sock);
-        stompClient.connect({}, onConnected, onError);
+        // let Sock = new SockJS('http://localhost:8080/ws');
+        // stompClient = over(Sock);
+        // stompClient.connect({}, onConnected, onError);
+        onConnected();
     };
 
     const onConnected = () => {
-        stompClient.subscribe(`/topic/${slideId}`, onPrivateMessage);
+        stompClient.subscribe(`/topic/slide/${slideId}`, onPrivateMessage);
     };
 
     const onPrivateMessage = (payload) => {
@@ -95,8 +101,8 @@ const SlideShow = (props) => {
                     </BarChart>
                 </ResponsiveContainer>
             </>
-        )
-    }
+        );
+    };
 
     const slideShowParagraphUI = () => {
         return (
@@ -104,8 +110,8 @@ const SlideShow = (props) => {
                 <h1>{heading}</h1>
                 <p>{paragraph}</p>
             </Container>
-        )
-    }
+        );
+    };
 
     const slideShowHeadingUI = () => {
         return (
@@ -113,8 +119,8 @@ const SlideShow = (props) => {
                 <h1>{heading}</h1>
                 <p>{subheading}</p>
             </Container>
-        )
-    }
+        );
+    };
 
     const slideShowUI = () => {
         if (slide?.slideType == 1) {
@@ -124,7 +130,7 @@ const SlideShow = (props) => {
         } else {
             return slideShowHeadingUI();
         }
-    }
+    };
     return (
         <>
             <Row style={{ backgroundColor: 'rgb(219, 220, 225)', padding: '32px 32px 70px 32px', height: '90%' }}>
