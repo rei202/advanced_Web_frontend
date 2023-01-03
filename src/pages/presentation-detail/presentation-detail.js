@@ -1,21 +1,48 @@
 import './presentation-detail.css';
-import { Button, Col, Container, Dropdown, DropdownButton, Form, ListGroup, Modal, Nav, Navbar, NavDropdown, Row, Table } from 'react-bootstrap';
-import { CaretRightSquareFill, Plus, Share } from 'react-bootstrap-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faCaretRight, faChartColumn, faChartSimple, faEllipsisH, faPencil, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { useEffect, useState } from 'react';
+import {
+    Button,
+    Col,
+    Container,
+    Dropdown,
+    DropdownButton,
+    Form,
+    ListGroup,
+    Modal,
+    Nav,
+    Navbar,
+    NavDropdown,
+    Row,
+    Table
+} from 'react-bootstrap';
+import {CaretRightSquareFill, Plus, Share} from 'react-bootstrap-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {
+    faArrowLeft,
+    faCaretRight,
+    faChartColumn,
+    faChartSimple,
+    faEllipsisH,
+    faPencil,
+    faPlus,
+    faTrash
+} from '@fortawesome/free-solid-svg-icons';
+import {useEffect, useState} from 'react';
 import SlideWindow from './slide-window/slide-window';
 import SlideShow from './slide-show/slide-show';
 import SlideEdit from './slide-edit/slide-edit';
-import { useNavigate, useParams } from 'react-router';
+import {useNavigate, useParams} from 'react-router';
 import useAxios from '../../hooks/useAxios';
 import useSlideApi from "../../api/useSlideApi";
+import useGroupApi from "../../api/useGroupApi";
+import usePresentationApi from "../../api/usePresentationApi";
 
 const PresentationDetail = () => {
     const navigate = useNavigate();
     const params = useParams();
     const axios = useAxios();
     const slideApi = useSlideApi();
+    const groupApi = useGroupApi();
+    const presentationApi = usePresentationApi();
     const preId = params.id;
     const [listSlide, setListSlide] = useState(
         [
@@ -44,11 +71,10 @@ const PresentationDetail = () => {
             }
         ]
     );
-
     const [choosenSlideId, setChoosenSlideId] = useState(null);
     const [isEmtyList, setIsEmtyList] = useState(false);
     const [stateChange, setStateChange] = useState(true);
-    const reloadListSlide =() => {
+    const reloadListSlide = () => {
         slideApi.getListSlide(preId)
             .then((resp) => {
                 setListSlide(resp.data);
@@ -71,7 +97,7 @@ const PresentationDetail = () => {
     }, []);
 
     const onAddNewSlideClick = () => {
-        slideApi.addNewSlide( { preId: preId, slideType: 1, title: 'Multiple choice' })
+        slideApi.addNewSlide({preId: preId, slideType: 1, title: 'Multiple choice'})
             .then((resp) => {
                 if (resp.data) {
                     listSlide.push(resp.data);
@@ -93,7 +119,7 @@ const PresentationDetail = () => {
     };
 
     const onDeleteSlideClick = () => {
-        slideApi.deleteSlide( { slideId: choosenSlideId })
+        slideApi.deleteSlide({slideId: choosenSlideId})
             .then((resp) => {
                 const deleteSlide = resp.data;
                 const indexDeleteSlide = listSlide.findIndex(slide => slide.id == deleteSlide.id);
@@ -111,6 +137,39 @@ const PresentationDetail = () => {
             });
     };
 
+    const [isChooseGroupToSlideModal, setIsChooseGroupToSlideModal] = useState(false);
+    const [listGroup, setListGroup] = useState([]);
+    const onGroupSelectModalOpen = () => {
+        setIsChooseGroupToSlideModal(true);
+        groupApi.getMyGroup()
+            .then(resp => {
+                const listGroupTmp = resp?.data?.map(
+                    groupData => groupData.group
+                );
+                console.log(listGroupTmp);
+                setListGroup(listGroupTmp);
+            })
+    }
+
+    const [selectedGroup, setSelectedGroup] = useState("");
+    const handleGroupSelectChange = (event) => {
+        console.log(event.target.value);
+        setSelectedGroup(event.target.value);
+    }
+
+    const onPresentingBtnClick = () => {
+        presentationApi.presentForGroup(
+            {
+                "presentationId" : preId,
+                "groupId" : selectedGroup
+            }
+        )
+            .then((resp) => {
+                navigate(`/presenting/${resp.data.id}`);
+            })
+    }
+
+
     return (
         <Container fluid>
             {/*Nav Bar*/}
@@ -118,11 +177,13 @@ const PresentationDetail = () => {
                 <Container id='custom-navbar'>
                     <Navbar expand='lg' variant='light' bg='light'>
                         {/*<Navbar.Brand href="#">Navbar</Navbar.Brand>*/}
-                        <Navbar.Toggle aria-controls='responsive-navbar-nav' />
+                        <Navbar.Toggle aria-controls='responsive-navbar-nav'/>
                         <Navbar.Collapse id='responsive-navbar-nav'>
                             <Nav className='me-auto'>
-                                <div className='d-flex align-items-center me-2' onClick={() => navigate('/presentation')}>
-                                    <FontAwesomeIcon icon={faArrowLeft} style={{ cursor: 'pointer' }} className='p-2 align-middle' />
+                                <div className='d-flex align-items-center me-2'
+                                     onClick={() => navigate('/presentation')}>
+                                    <FontAwesomeIcon icon={faArrowLeft} style={{cursor: 'pointer'}}
+                                                     className='p-2 align-middle'/>
                                 </div>
                                 <div className='d-flex flex-column'>
                                     <b>{}</b>
@@ -134,8 +195,8 @@ const PresentationDetail = () => {
                                     <Share size='20' className={'me-2'}></Share>
                                     <span>Share</span>
                                 </Button>
-                                <Button variant='primary' onClick={() => navigate(`/presenting/${preId}`)}>
-                                    <FontAwesomeIcon className={'me-2'} icon={faCaretRight} size={'xl'} />
+                                <Button variant='primary' onClick={() => onGroupSelectModalOpen()}>
+                                    <FontAwesomeIcon className={'me-2'} icon={faCaretRight} size={'xl'}/>
                                     <span>Present</span>
                                 </Button>
                             </Nav>
@@ -144,15 +205,19 @@ const PresentationDetail = () => {
                 </Container>
             </Row>
             {/*utilities (Add slide, delete slide,...)*/}
-            <Row style={{ backgroundColor: 'white', borderBottom: '2px solid rgb(231, 232, 235)', padding: '8px 16px 8px 16px' }}>
+            <Row style={{
+                backgroundColor: 'white',
+                borderBottom: '2px solid rgb(231, 232, 235)',
+                padding: '8px 16px 8px 16px'
+            }}>
                 <Col className='d-flex flex-row justify-content-between'>
                     <div>
                         <Button variant={'primary'} onClick={() => onAddNewSlideClick()}>
-                            <FontAwesomeIcon className={'me-2'} icon={faPlus} />
+                            <FontAwesomeIcon className={'me-2'} icon={faPlus}/>
                             <span>New slide</span>
                         </Button>
                         <Button variant={'danger'} onClick={() => onDeleteSlideClick()} className='ms-2'>
-                            <FontAwesomeIcon className={'me-2'} icon={faTrash} />
+                            <FontAwesomeIcon className={'me-2'} icon={faTrash}/>
                             <span>Delete slide</span>
                         </Button>
                     </div>
@@ -161,15 +226,37 @@ const PresentationDetail = () => {
             {/*Slide Show*/}
             <Row className='content-wapper'>
                 <Col id='left-pane' className='p-0' xs={2}>
-                    <SlideWindow listSlide={listSlide} slideId={choosenSlideId} onChoosenSlide={onChoosenSlideClick} />
+                    <SlideWindow listSlide={listSlide} slideId={choosenSlideId} onChoosenSlide={onChoosenSlideClick}/>
                 </Col>
                 <Col id='center-pane' xs={7}>
-                    <SlideShow slideId={choosenSlideId} stateChange={stateChange} isEmtyList={isEmtyList} />
+                    <SlideShow slideId={choosenSlideId} stateChange={stateChange} isEmtyList={isEmtyList}/>
                 </Col>
                 <Col id='right-pane' xs={3}>
-                    <SlideEdit slideId={choosenSlideId} changeValue={onChangeValueOnRightOption} />
+                    <SlideEdit slideId={choosenSlideId} changeValue={onChangeValueOnRightOption}/>
                 </Col>
             </Row>
+
+            <Modal show={isChooseGroupToSlideModal} onHide={() => setIsChooseGroupToSlideModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Presenting</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Select aria-label="Default select example" onChange={handleGroupSelectChange}>
+                        <option value="" disabled selected>Choose a group to present</option>
+                        {
+                            listGroup.map(group => <option key={group.id} value={group.id}>{group.groupName}</option> )
+                        }
+                    </Form.Select>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant='secondary' onClick={() => setIsChooseGroupToSlideModal(false)}>
+                        Close
+                    </Button>
+                    <Button type={'submit'} variant='primary' onClick={onPresentingBtnClick}>
+                        Present
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 };

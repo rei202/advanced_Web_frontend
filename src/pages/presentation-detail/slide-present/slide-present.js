@@ -1,12 +1,13 @@
 import './slide-present.scss';
-import { Button, Col, Row } from 'react-bootstrap';
+import {Button, Col, Row} from 'react-bootstrap';
 import { Bar, ResponsiveContainer, XAxis, YAxis, BarChart, LabelList } from 'recharts';
 import { useEffect, useRef, useState, useContext } from 'react';
 import useAxios from '../../../hooks/useAxios';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
-import { useParams } from 'react-router';
+import {useNavigate, useParams} from 'react-router';
 import useSlideApi from '../../../api/useSlideApi';
+import UseContentApi from '../../../api/useContentApi';
 import useContentApi from '../../../api/useContentApi';
 import { BACKEND_URL } from '../../../constant/common.const';
 import SocketContext from '../../../store/Context';
@@ -17,9 +18,11 @@ import boopSfx from '../../../assets/audio/ring.mp3';
 import useChatApi from '../../../api/useChatApi';
 import QuestionBox from '../../../component/Question/QuestionBox';
 import useQuestionApi from '../../../api/useQuestionApi';
-import Container from 'react-bootstrap/Container';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import Container from "react-bootstrap/Container";
+import {Fonts} from "react-bootstrap-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faArrowLeft, faArrowRight, faXmark} from "@fortawesome/free-solid-svg-icons";
+import usePresentationApi from "../../../api/usePresentationApi";
 
 var stompClient = null;
 var chatArr = [];
@@ -30,12 +33,13 @@ const SlidePresent = () => {
     const messagesEndRef = useRef();
     const questionEndRef = useRef();
 
-    // const [playRingTone] = useSound(boopSfx);
+    const [playRingTone] = useSound(boopSfx);
     const params = useParams();
     const slideApi = useSlideApi();
     const chatApi = useChatApi();
     const questionApi = useQuestionApi();
     const contentApi = useContentApi();
+    const presentationApi = usePresentationApi();
 
     const axios = useAxios();
     const [listSlide, setListSlide] = useState([]);
@@ -48,19 +52,26 @@ const SlidePresent = () => {
     const [questionList, setQuestionList] = useState([]);
     const [isChoosingChatBox, setIsChoosingChatBox] = useState(true);
     const [chatFlagRerender, setChatFlagRerender] = useState(0); //each receiving a message from socket, +1 then setChatlist
-    const [heading, setHeading] = useState('');
-    const [paragraph, setParagraph] = useState('');
-    const [subheading, setSubheading] = useState('');
+    const [heading, setHeading] = useState("");
+    const [paragraph, setParagraph] = useState("");
+    const [subheading, setSubheading] = useState("");
     const [quesFlagRerender, setQuesFlagRerender] = useState(0); //each receiving a question from socket, +1 then setQuestionlist
-    const preId = params.id;
+    const [preId, setPreId] = useState();
+    const [groupId, setGroupId] = useState();
     const [currentSlideId, setCurrentSlideId] = useState(0);
+    const presentingId = params.id;
+
     const stompClient = useContext(SocketContext);
 
     const reloadContentDetail = (slideId) => {
-        return slideApi
-            .getSlideDetail(slideId)
+        return slideApi.getSlideDetail(slideId)
             .then((resp) => {
                 setSlide(resp.data);
+                if (stompClient.isConnected) {
+                    connect(resp?.data?.id);
+                    loadOldMessage();
+                    loadOldQuestion();
+                }
                 return resp.data;
             })
             .then((resp) => {
@@ -82,12 +93,19 @@ const SlidePresent = () => {
                     setHeading(resp?.data?.heading);
                     setSubheading(resp?.data?.subheading);
                 }
-            });
-    };
+            })
+    }
 
     const reloadData = () => {
-        slideApi
-            .getListSlide(preId)
+        presentationApi
+            .getPresentingData(presentingId)
+            .then(
+                (resp) => {
+                    setGroupId(resp?.data?.groupId);
+                    setPreId(resp?.data?.presentation?.id);
+                    return slideApi.getListSlide(resp?.data?.presentation?.id);
+                }
+            )
             .then((resp) => {
                 const listSlideTmp = resp.data;
                 setListSlide(resp.data);
@@ -106,18 +124,17 @@ const SlidePresent = () => {
     };
 
     useEffect(() => {
-        connect();
-        loadOldMessage();
-        // reloadData();
-        loadOldQuestion();
-        return () => {
-            stompClient.unsubscribe(`/topic/slide/${slide?.id}`);
-            stompClient.unsubscribe(`/topic/chatroom/${preId}`);
-            stompClient.unsubscribe(`/topic/question/${preId}`);
-        };
-    }, []);
+        reloadData();
+        // return () => {
+        //     stompClient.unsubscribe(`/topic/slide/${slide?.id}`);
+        //     stompClient.unsubscribe(`/topic/chatroom/${preId}`);
+        //     stompClient.unsubscribe(`/topic/question/${preId}`);
+        //
+        //     stompClient.disconnect();
+        // };
+    }, [stompClient.isConnected]);
     const loadOldMessage = () => {
-        chatApi.loadOldMessage(preId).then((res) => {
+        chatApi.loadOldMessage(presentingId).then((res) => {
             chatArr = res.data;
             setChatList(chatArr);
             setTimeout(function () {
@@ -126,7 +143,7 @@ const SlidePresent = () => {
         });
     };
     const loadOldQuestion = () => {
-        questionApi.loadOldQuesiton(preId).then((res) => {
+        questionApi.loadOldQuesiton(presentingId).then((res) => {
             // questionArr = res.data;
             setQuestionList(res.data);
             setTimeout(function () {
@@ -135,16 +152,17 @@ const SlidePresent = () => {
         });
     };
 
-    const connect = () => {
+    const connect = (slideId) => {
         // // let Sock = new SockJS(`${BACKEND_URL}/ws`);
         // // stompClient = over(Sock);
         // stompClient.connect({}, onConnected, onError);
-        onConnected()
+        onConnected(slideId)
     };
-    const onConnected = () => {
-        stompClient.subscribe(`/topic/slide/${slide?.id}`, onPrivateMessage);
-        stompClient.subscribe(`/topic/chatroom/${preId}`, onChatMessage);
-        stompClient.subscribe(`/topic/question/${preId}`, onQuestion);
+
+    const onConnected = (slideId) => {
+        stompClient.client.subscribe(`/topic/slide/${slideId}`, onPrivateMessage);
+        stompClient.client.subscribe(`/topic/chatroom/${presentingId}`, onChatMessage);
+        stompClient.client.subscribe(`/topic/question/${presentingId}`, onQuestion);
     };
 
     const onPrivateMessage = (payload) => {
@@ -169,7 +187,7 @@ const SlidePresent = () => {
         setChatList(chatArr);
         if (chatArr.length !== 0)
             if (chatArr[chatArr.length - 1].username !== localStorage.getItem('username')) {
-                // playRingTone();
+                playRingTone();
                 setShowToast(true);
             }
 
@@ -227,8 +245,8 @@ const SlidePresent = () => {
                     </BarChart>
                 </ResponsiveContainer>
             </>
-        );
-    };
+        )
+    }
 
     const slideShowParagraphUI = () => {
         return (
@@ -236,8 +254,8 @@ const SlidePresent = () => {
                 <h1>{heading}</h1>
                 <p>{paragraph}</p>
             </Container>
-        );
-    };
+        )
+    }
 
     const slideShowHeadingUI = () => {
         return (
@@ -245,8 +263,8 @@ const SlidePresent = () => {
                 <h1>{heading}</h1>
                 <p>{subheading}</p>
             </Container>
-        );
-    };
+        )
+    }
 
     const slidePresentUi = () => {
         if (content?.slideType == 1) {
@@ -256,17 +274,33 @@ const SlidePresent = () => {
         } else {
             return slideShowHeadingUI();
         }
-    };
+    }
 
     const onLeftArrowBtnClick = () => {
-        reloadContentDetail(listSlide[currentSlideId - 1].id);
+        reloadContentDetail(listSlide[currentSlideId - 1].id)
         setCurrentSlideId(currentSlideId - 1);
-    };
+    }
 
     const onRightArrowBtnClick = () => {
-        reloadContentDetail(listSlide[currentSlideId + 1].id);
+        reloadContentDetail(listSlide[currentSlideId + 1].id)
         setCurrentSlideId(currentSlideId + 1);
-    };
+    }
+
+    const navigate = useNavigate();
+    const onStopPresenting = () => {
+        presentationApi.stopPresentingData({
+            'presentingId' : presentingId
+        })
+            .then(resp => {
+                navigate(`/presentation/${preId}`)
+            })
+    }
+
+    const changeTypePane = (isChatBox) => {
+        setTimeout(() => {
+            setIsChoosingChatBox(isChatBox);
+        }, 300)
+    }
     return (
         <>
             <Row style={{ padding: '32px 32px 70px 32px', height: '100vh', width: '100%' }}>
@@ -277,41 +311,42 @@ const SlidePresent = () => {
                         </p>
                         {slidePresentUi()}
                     </div>
-                    <div style={{ position: 'absolute', bottom: '5%', left: '5%' }} className='utils-container d-flex justify-content-between p-3'>
-                        <Button onClick={() => onLeftArrowBtnClick()} disabled={currentSlideId == 0}>
-                            <FontAwesomeIcon icon={faArrowLeft} size={'1x'} className='text-white me-4' />
+                    <div style={{position : 'absolute', bottom : '5%', left : '5%'}}
+                         className='utils-container d-flex justify-content-between p-3'>
+                        <Button  onClick={() => onLeftArrowBtnClick()} disabled={currentSlideId == 0}>
+                            <FontAwesomeIcon icon={faArrowLeft} size={"1x"} className='text-white me-4'/>
                         </Button>
 
                         <Button onClick={() => onRightArrowBtnClick()} disabled={currentSlideId == listSlide.length - 1}>
-                            <FontAwesomeIcon icon={faArrowRight} size={'1x'} className='text-white' />
+                            <FontAwesomeIcon icon={faArrowRight} size={"1x"} className='text-white'/>
                         </Button>
                     </div>
+                    <Button className='utils-btn' style={{left : '5%', top : '5%'}}
+                            onClick={() => onStopPresenting()}>
+                        <FontAwesomeIcon icon={faXmark} size={'1x'}/>
+                    </Button>
                 </Col>
                 <Col md={3} style={{ height: '100%' }}>
                     <div className='option-leftside-container'>
                         <div
                             className={isChoosingChatBox ? 'chatbox-option chosen' : 'chatbox-option'}
-                            onClick={() => {
-                                if (!isChoosingChatBox) setIsChoosingChatBox(true);
-                            }}
+                            onClick={() => changeTypePane(true)}
                         >
                             Chat box
                         </div>
                         <div
                             className={!isChoosingChatBox ? 'questionbox-option chosen' : 'questionbox-option'}
-                            onClick={() => {
-                                if (isChoosingChatBox) setIsChoosingChatBox(false);
-                            }}
+                            onClick={() => changeTypePane(false)}
                         >
                             Question Box
                         </div>
                     </div>
                     {isChoosingChatBox ? (
-                        <Chat preId={preId} messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
+                        <Chat preId={presentingId} messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
                             {' '}
                         </Chat>
                     ) : (
-                        <QuestionBox preId={preId} setQuestionList={setQuestionList} questionEndRef={questionEndRef} questionList={questionList}></QuestionBox>
+                        <QuestionBox preId={presentingId} setQuestionList={setQuestionList} questionEndRef={questionEndRef} questionList={questionList}></QuestionBox>
                     )}
                 </Col>
                 <AutohideToast show={showToast} setShow={setShowToast}></AutohideToast>

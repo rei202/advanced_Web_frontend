@@ -22,7 +22,7 @@ const privateRoutes = [
     { path: '/presentation', element: Presentation, haveLayout: true },
     { path: '/presentation/:id', element: PresentationDetail },
     { path: '/presentation-voting/:id', element: PresentationVotingDetail },
-    { path: '/presentation/:id/present', element: SlidePresent },
+    { path: '/presenting/:id', element: SlidePresent },
     { path: '/presentation-voting', element: PresentationVoting },
     { path: '/presentation-voting/:id', element: PresentationVotingDetail },
 ];
