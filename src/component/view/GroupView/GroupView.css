@@ -14,3 +14,20 @@
     display: flex;
     justify-content: space-around;
 }
+.group-deletion-icon {
+    width: 50%;
+    /* background-color: white; */
+}
+.group-deletion-icon :hover {
+    background-color: white;
+}
+.role-tag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 14pt;
+    background-color: yellow;
+    padding: 5px;
+    border: 1px black solid;
+    border-radius: 10px 0px 0px 10px;
+}

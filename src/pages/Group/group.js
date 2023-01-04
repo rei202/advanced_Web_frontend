@@ -10,6 +10,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CreLinkCenteredModal from '../../component/list/Modal/CreLinkCenteredModal';
 import { useParams } from 'react-router-dom';
 import EmptyNotification from '../../component/EmptyNotification';
+import PopUp from '../../component/PresentingNotification/presenting-alert';
+import PresentingAlert from '../../component/PresentingNotification/presenting-alert';
+import PresentingPopUp from '../../component/PresentingNotification/pop-up';
 const Group = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     searchParams.get('id');
@@ -18,6 +21,7 @@ const Group = () => {
     const [listMember, setListMember] = useState([]);
     const [myAccountInGroup, setMyAccountInGroup] = useState({});
     const [showModal, setShowModal] = useState(false);
+    const [showPresentingPopup, setShowPresentingPopup] = useState(true);
 
     const axios = useAxios();
     const { id } = useParams();
@@ -113,6 +117,10 @@ const Group = () => {
     return (
         <>
             {' '}
+            {/* <PopUp></PopUp> */}
+            <div>
+                <PresentingAlert />
+            </div>
             <div className='admin-assignment-wapper'>
                 <h3 className='role-title'>Admin</h3>
                 <div className='cre-link-btn-wapper'>
@@ -140,6 +148,7 @@ const Group = () => {
                     handlerUpgrade={handlerUpgrade}
                 ></ListMemberView>
             )}
+            <PresentingPopUp show={showPresentingPopup} onHide={() => setShowPresentingPopup(false)} />
             <CreLinkCenteredModal show={showModal} onHide={() => setShowModal(false)} />
         </>
     );

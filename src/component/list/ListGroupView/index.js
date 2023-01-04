@@ -11,7 +11,7 @@ const ListGroupView = ({ props, handlerDeleteGroup }) => {
                 {props.map((value, index) => (
                     <Col key={index}>
                         <div className='group-item' style={{ color: 'black' }}>
-                            <GroupView handlerDeleteGroup={handlerDeleteGroup} props={value.group}></GroupView>
+                            <GroupView role={value.roleUserInGroup} handlerDeleteGroup={handlerDeleteGroup} props={value.group}></GroupView>
                         </div>
                     </Col>
                 ))}

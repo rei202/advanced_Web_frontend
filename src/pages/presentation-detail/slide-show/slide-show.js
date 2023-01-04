@@ -54,8 +54,11 @@ const SlideShow = (props) => {
         }
     }, [slideId, stateChange]);
     useEffect(() => {
+        if (stompClient.isConnected) connect();
+    }, [stompClient.isConnected]);
+    useEffect(() => {
         return () => {
-            stompClient.unsubscribe(`/topic/slide/${slideId}`);
+            stompClient.client.unsubscribe(`/topic/slide/${slideId}`);
         };
     }, []);
     const connect = () => {
@@ -67,7 +70,7 @@ const SlideShow = (props) => {
     };
 
     const onConnected = () => {
-        stompClient.subscribe(`/topic/slide/${slideId}`, onPrivateMessage);
+        if (stompClient.isConnected) stompClient.client.subscribe(`/topic/slide/${slideId}`, onPrivateMessage);
     };
 
     const onPrivateMessage = (payload) => {
