@@ -20,8 +20,8 @@ import Container from 'react-bootstrap/Container';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faXmark } from '@fortawesome/free-solid-svg-icons';
 import usePresentationApi from '../../../api/usePresentationApi';
-import usePresentingApi from "../../../api/usePresentingApi";
-import {ROOT_URL} from "../../../constant/common.const";
+import usePresentingApi from '../../../api/usePresentingApi';
+import { ROOT_URL } from '../../../constant/common.const';
 
 var stompClient = null;
 var chatArr = [];
@@ -59,6 +59,8 @@ const SlidePresentGuest = () => {
     const [preId, setPreId] = useState();
     const [groupId, setGroupId] = useState();
     const [currentSlideId, setCurrentSlideId] = useState(0);
+    const [currentRole, setCurrentRole] = useState();
+
     const presentingId = params.id;
 
     const stompClient = useContext(SocketContext);
@@ -100,7 +102,7 @@ const SlidePresentGuest = () => {
             .then((resp) => {
                 setGroupId(resp?.data?.groupId);
                 setPreId(resp?.data?.presentation?.id);
-                setCurrentSlideIndex(resp?.data?.currentSlideIndex)
+                setCurrentSlideIndex(resp?.data?.currentSlideIndex);
                 currentSlideInitTmp = resp?.data?.currentSlideIndex;
                 return slideApi.getListSlide(resp?.data?.presentation?.id, true);
             })
@@ -129,15 +131,14 @@ const SlidePresentGuest = () => {
     useEffect(() => {
         if (stompClient.isConnected && listSlide && !isSetSocket) {
             setIsSetSocket(true);
-            for (const slide of listSlide)
-                if (slide?.content?.slideType == 1) connect(slide.id);
+            for (const slide of listSlide) if (slide?.content?.slideType == 1) connect(slide.id);
             stompClient.client.subscribe(`/topic/presenting/${presentingId}`, onSlideChangeMessage);
             stompClient.client.subscribe(`/topic/chatroom/${presentingId}`, onChatMessage);
             stompClient.client.subscribe(`/topic/question/${presentingId}`, onQuestion);
             loadOldMessage();
             loadOldQuestion();
         }
-    }, [stompClient.isConnected, listSlide])
+    }, [stompClient.isConnected, listSlide]);
 
     // useEffect(() => {
     //     return () => {
@@ -158,7 +159,8 @@ const SlidePresentGuest = () => {
     const loadOldQuestion = () => {
         questionApi.loadOldQuesiton(presentingId).then((res) => {
             // questionArr = res.data;
-            setQuestionList(res.data);
+            setQuestionList(res.data.oldQuestionList);
+            setCurrentRole(res.data.owner);
             setTimeout(function () {
                 scrollToBottomQuestion();
             }, 500);
@@ -180,7 +182,7 @@ const SlidePresentGuest = () => {
         console.log(payload.body);
         setCurrentSlideIndex(payload.body);
         reloadContentDetail(listSlide[payload.body].id);
-    }
+    };
 
     const onPrivateMessage = (payload) => {
         console.log(payload);
@@ -351,6 +353,7 @@ const SlidePresentGuest = () => {
                             setQuestionList={setQuestionList}
                             questionEndRef={questionEndRef}
                             questionList={questionList}
+                            currentRole={currentRole}
                         ></QuestionBox>
                     )}
                 </Col>
