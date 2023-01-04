@@ -10,7 +10,7 @@ import useChatApi from '../../api/useChatApi';
 import Question from './Question';
 import useQuestionApi from '../../api/useQuestionApi';
 
-const QuestionBox = ({ questionList, questionEndRef, setQuestionList, preId }) => {
+const QuestionBox = ({ currentRole, questionList, questionEndRef, setQuestionList, preId }) => {
     const [dataInput, setDataInput] = useState('');
     const [isDescendingVoteSort, setIsDescendingVoteSort] = useState(false);
     const [isRecentTimeFirstSort, setIsRecentTimeFirstSort] = useState(false);
@@ -59,6 +59,7 @@ const QuestionBox = ({ questionList, questionEndRef, setQuestionList, preId }) =
             setIsAnsweredSort(false);
         }
     };
+    console.log(6, currentRole);
 
     return (
         <>
@@ -102,13 +103,14 @@ const QuestionBox = ({ questionList, questionEndRef, setQuestionList, preId }) =
                     {questionList.map((value, index) => (
                         <Question
                             key={index}
-                            username={value.presentationGroup.presentation.user.username}
+                            username={value.presentationGroup.presentation.user.fullName}
                             content={value.question}
                             datetime={value.createdTime}
                             upVoteNum={value.numberVote}
                             isAnswer={value.isAnswered}
                             questionId={value.id}
                             preId={preId}
+                            currentRole={currentRole}
                         />
                     ))}
                     <div ref={questionEndRef} />

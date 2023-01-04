@@ -2,7 +2,8 @@ import upVote from '../../assets/images/up-arrow.png';
 import './question.scss';
 import { Button } from 'react-bootstrap';
 import useQuestionApi from '../../api/useQuestionApi';
-const Question = ({ preId, questionId, username, content, isAnswer, upVoteNum, datetime }) => {
+import handleConvertTime from '../../utils/time-converter';
+const Question = ({ currentRole, preId, questionId, username, content, isAnswer, upVoteNum, datetime }) => {
     const questionApi = useQuestionApi();
     const handleAnswerQuestion = () => {
         questionApi.answerQuestion(preId, questionId);
@@ -10,14 +11,14 @@ const Question = ({ preId, questionId, username, content, isAnswer, upVoteNum, d
     const handleUpVoteQuestion = () => {
         questionApi.upVote(preId, questionId);
     };
-    const handleConvertTime = (timeStamp) => {
-        const date = new Date(Number(timeStamp));
-        const dd = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
-        const mm = date.getMonth() < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1;
-        const h = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
-        const m = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
-        return dd + '/' + mm + '/' + date.getFullYear() + ' ' + h + ':' + m;
-    };
+    // const handleConvertTime = (timeStamp) => {
+    //     const date = new Date(Number(timeStamp));
+    //     const dd = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+    //     const mm = date.getMonth() < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1;
+    //     const h = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
+    //     const m = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+    //     return dd + '/' + mm + '/' + date.getFullYear() + ' ' + h + ':' + m;
+    // };
     return (
         <>
             <div>
@@ -34,9 +35,13 @@ const Question = ({ preId, questionId, username, content, isAnswer, upVoteNum, d
                             <label className='post-time'>{handleConvertTime(datetime)}</label>
                         </div>
                         <p>{content}</p>
-                        <Button onClick={() => handleAnswerQuestion()} disabled={isAnswer} variant='primary' className='anwser-question-btn'>
-                            {isAnswer ? 'answered' : 'answer'}
-                        </Button>
+                        {currentRole || isAnswer ? (
+                            <Button onClick={() => handleAnswerQuestion()} disabled={isAnswer} variant='primary' className='anwser-question-btn'>
+                                {isAnswer ? 'answered' : 'answer'}
+                            </Button>
+                        ) : (
+                            <div />
+                        )}
                     </div>
                 </div>
             </div>

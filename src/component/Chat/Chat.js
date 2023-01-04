@@ -32,6 +32,7 @@ const Chat = ({ chatList, messagesEndRef, preId }) => {
                             isOwner={value.username === localStorage.getItem('username') ? true : false}
                             username={value.username}
                             content={value.message}
+                            fullname={value.fullName}
                         />
                     ))}
                     <div ref={messagesEndRef} />

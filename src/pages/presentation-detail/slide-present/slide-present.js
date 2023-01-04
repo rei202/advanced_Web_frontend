@@ -60,7 +60,7 @@ const SlidePresent = () => {
     const [groupId, setGroupId] = useState();
     const [currentSlideId, setCurrentSlideId] = useState(0);
     const presentingId = params.id;
-
+    const [currentRole, setCurrentRole] = useState();
     const stompClient = useContext(SocketContext);
 
     const reloadContentDetail = (slideId) => {
@@ -146,13 +146,15 @@ const SlidePresent = () => {
             setChatList(chatArr);
             setTimeout(function () {
                 scrollToBottomChat();
-            }, 1000);
+            }, 500);
         });
     };
     const loadOldQuestion = () => {
         questionApi.loadOldQuesiton(presentingId).then((res) => {
             // questionArr = res.data;
-            setQuestionList(res.data);
+            console.log(4, res.data);
+            setQuestionList(res.data.oldQuestionList);
+            setCurrentRole(res.data.owner);
             setTimeout(function () {
                 scrollToBottomQuestion();
             }, 500);
@@ -349,6 +351,7 @@ const SlidePresent = () => {
                             setQuestionList={setQuestionList}
                             questionEndRef={questionEndRef}
                             questionList={questionList}
+                            currentRole={currentRole}
                         ></QuestionBox>
                     )}
                 </Col>
