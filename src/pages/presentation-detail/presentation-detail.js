@@ -35,6 +35,7 @@ import useAxios from '../../hooks/useAxios';
 import useSlideApi from "../../api/useSlideApi";
 import useGroupApi from "../../api/useGroupApi";
 import usePresentationApi from "../../api/usePresentationApi";
+import usePresentingApi from "../../api/usePresentingApi";
 
 const PresentationDetail = () => {
     const navigate = useNavigate();
@@ -157,8 +158,9 @@ const PresentationDetail = () => {
         setSelectedGroup(event.target.value);
     }
 
+    const presenting = usePresentingApi()
     const onPresentingBtnClick = () => {
-        presentationApi.presentForGroup(
+        presenting.presentForGroup(
             {
                 "presentationId" : preId,
                 "groupId" : selectedGroup

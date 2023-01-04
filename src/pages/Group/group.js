@@ -15,6 +15,7 @@ import PresentingAlert from '../../component/PresentingNotification/presenting-a
 import PresentingPopUp from '../../component/PresentingNotification/pop-up';
 import useNotificationApi from '../../api/useNotificationApi';
 import SocketContext from '../../store/Context';
+import usePresentingApi from "../../api/usePresentingApi";
 const Group = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     searchParams.get('id');
@@ -115,6 +116,8 @@ const Group = () => {
         }
     };
 
+    const presentingApi = usePresentingApi();
+    const [presentingId, setPresentingId] = useState();
     useEffect(() => {
         axios
             .get('api/participant/1?id=' + id)
@@ -138,6 +141,14 @@ const Group = () => {
                 console.log(err);
             });
 
+        presentingApi.getPresentingGroup(id)
+            .then(
+                resp => {
+                    // console.log(resp.data);
+                    setPresentingId(resp.data[0].id);
+                }
+            )
+
         notificationApi.checkPresenting(id).then((res) => {
             if (res.data !== null) {
                 setShowPresentingPopup(res.data.isPresenting);
@@ -150,7 +161,7 @@ const Group = () => {
         <>
             {' '}
             {/* <PopUp></PopUp> */}
-            <div>{showPresentingNoti && <PresentingAlert />}</div>
+            <div>{showPresentingNoti && <PresentingAlert presentingGroupData={presentingId} />}</div>
             <div className='admin-assignment-wapper'>
                 <h3 className='role-title'>Admin</h3>
                 <div className='cre-link-btn-wapper'>
@@ -178,7 +189,7 @@ const Group = () => {
                     handlerUpgrade={handlerUpgrade}
                 ></ListMemberView>
             )}
-            <PresentingPopUp show={showPresentingPopup} onHide={() => setShowPresentingPopup(false)} />
+            <PresentingPopUp show={showPresentingPopup} presentingId={presentingId} onHide={() => setShowPresentingPopup(false)} />
             <CreLinkCenteredModal show={showModal} onHide={() => setShowModal(false)} />
         </>
     );

@@ -1,5 +1,5 @@
-import './slide-present.scss';
-import {Button, Col, Form, Modal, Row, Table} from 'react-bootstrap';
+import './slide-present-guest.scss';
+import { Button, Col, Row } from 'react-bootstrap';
 import { Bar, ResponsiveContainer, XAxis, YAxis, BarChart, LabelList } from 'recharts';
 import { useEffect, useRef, useState, useContext } from 'react';
 import useAxios from '../../../hooks/useAxios';
@@ -8,7 +8,6 @@ import { over } from 'stompjs';
 import { useNavigate, useParams } from 'react-router';
 import useSlideApi from '../../../api/useSlideApi';
 import useContentApi from '../../../api/useContentApi';
-import {BACKEND_URL, ROOT_URL} from '../../../constant/common.const';
 import SocketContext from '../../../store/Context';
 import Chat from '../../../component/Chat/Chat.js';
 import AutohideToast from '../../../component/view/Toast';
@@ -19,17 +18,17 @@ import QuestionBox from '../../../component/Question/QuestionBox';
 import useQuestionApi from '../../../api/useQuestionApi';
 import Container from 'react-bootstrap/Container';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faArrowLeft, faArrowRight, faUser, faXmark} from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faArrowRight, faXmark } from '@fortawesome/free-solid-svg-icons';
 import usePresentationApi from '../../../api/usePresentationApi';
 import usePresentingApi from "../../../api/usePresentingApi";
-import useVotingApi from "../../../api/useVotingApi";
+import {ROOT_URL} from "../../../constant/common.const";
 
 var stompClient = null;
 var chatArr = [];
 var questionPayload = null;
 
 var count = 0;
-const SlidePresent = () => {
+const SlidePresentGuest = () => {
     const messagesEndRef = useRef();
     const questionEndRef = useRef();
 
@@ -61,22 +60,14 @@ const SlidePresent = () => {
     const [groupId, setGroupId] = useState();
     const [currentSlideId, setCurrentSlideId] = useState(0);
     const presentingId = params.id;
-    const [currentRole, setCurrentRole] = useState();
+
     const stompClient = useContext(SocketContext);
 
     const reloadContentDetail = (slideId) => {
-        return votingApi.getListVoting(slideId)
-            .then((resp) => {
-                setListVoting(resp.data);
-                return slideApi.getSlideDetail(slideId)
-            })
+        return slideApi
+            .getSlideDetail(slideId)
             .then((resp) => {
                 setSlide(resp.data);
-                // if (stompClient.isConnected) {
-                //     connect(resp?.data?.id);
-                //     loadOldMessage();
-                //     loadOldQuestion();
-                // }
                 return resp.data;
             })
             .then((resp) => {
@@ -101,18 +92,22 @@ const SlidePresent = () => {
             });
     };
 
+    const [currentSlideIndex, setCurrentSlideIndex] = useState();
+    let currentSlideInitTmp = 0;
     const reloadData = () => {
         presentingApi
             .getPresentingData(presentingId)
             .then((resp) => {
                 setGroupId(resp?.data?.groupId);
                 setPreId(resp?.data?.presentation?.id);
-                return slideApi.getListSlide(resp?.data?.presentation?.id);
+                setCurrentSlideIndex(resp?.data?.currentSlideIndex)
+                currentSlideInitTmp = resp?.data?.currentSlideIndex;
+                return slideApi.getListSlide(resp?.data?.presentation?.id, true);
             })
             .then((resp) => {
                 const listSlideTmp = resp.data;
                 setListSlide(resp.data);
-                return reloadContentDetail(listSlideTmp[currentSlideId].id);
+                return reloadContentDetail(listSlideTmp[currentSlideInitTmp].id);
             })
             .catch((err) => {
                 console.log(err);
@@ -128,13 +123,6 @@ const SlidePresent = () => {
 
     useEffect(() => {
         reloadData();
-        // return () => {
-        //     stompClient.unsubscribe(`/topic/slide/${slide?.id}`);
-        //     stompClient.unsubscribe(`/topic/chatroom/${preId}`);
-        //     stompClient.unsubscribe(`/topic/question/${preId}`);
-        //
-        //     stompClient.disconnect();
-        // };
     }, [stompClient.isConnected]);
 
     const [isSetSocket, setIsSetSocket] = useState(false);
@@ -143,6 +131,7 @@ const SlidePresent = () => {
             setIsSetSocket(true);
             for (const slide of listSlide)
                 if (slide?.content?.slideType == 1) connect(slide.id);
+            stompClient.client.subscribe(`/topic/presenting/${presentingId}`, onSlideChangeMessage);
             stompClient.client.subscribe(`/topic/chatroom/${presentingId}`, onChatMessage);
             stompClient.client.subscribe(`/topic/question/${presentingId}`, onQuestion);
             loadOldMessage();
@@ -150,29 +139,26 @@ const SlidePresent = () => {
         }
     }, [stompClient.isConnected, listSlide])
 
-    useEffect(() => {
-        return () => {
-            for (const slide of listSlide)
-                if (slide?.content?.slideType == 1) connect(slide.id);
-            stompClient.client.unsubscribe(`/topic/chatroom/${preId}`);
-            stompClient.client.unsubscribe(`/topic/question/${preId}`);
-        };
-    }, []);
+    // useEffect(() => {
+    //     return () => {
+    //         stompClient.client.unsubscribe(`/topic/slide/${slide?.id}`);
+    //         stompClient.client.unsubscribe(`/topic/chatroom/${preId}`);
+    //         stompClient.client.unsubscribe(`/topic/question/${preId}`);
+    //     };
+    // }, []);
     const loadOldMessage = () => {
         chatApi.loadOldMessage(presentingId).then((res) => {
             chatArr = res.data;
             setChatList(chatArr);
             setTimeout(function () {
                 scrollToBottomChat();
-            }, 500);
+            }, 1000);
         });
     };
     const loadOldQuestion = () => {
         questionApi.loadOldQuesiton(presentingId).then((res) => {
             // questionArr = res.data;
-            console.log(4, res.data);
-            setQuestionList(res.data.oldQuestionList);
-            setCurrentRole(res.data.owner);
+            setQuestionList(res.data);
             setTimeout(function () {
                 scrollToBottomQuestion();
             }, 500);
@@ -188,9 +174,13 @@ const SlidePresent = () => {
 
     const onConnected = (slideId) => {
         stompClient.client.subscribe(`/topic/slide/${slideId}`, onPrivateMessage);
-        stompClient.client.subscribe(`/topic/chatroom/${presentingId}`, onChatMessage);
-        stompClient.client.subscribe(`/topic/question/${presentingId}`, onQuestion);
     };
+
+    const onSlideChangeMessage = (payload) => {
+        console.log(payload.body);
+        setCurrentSlideIndex(payload.body);
+        reloadContentDetail(listSlide[payload.body].id);
+    }
 
     const onPrivateMessage = (payload) => {
         console.log(payload);
@@ -202,9 +192,6 @@ const SlidePresent = () => {
             });
             setListOptionVote(optionList);
         }
-
-        votingApi.getListVoting(listSlide[currentSlideId].id)
-            .then(resp => setListVoting(resp.data));
     };
 
     // useEffect(() => {
@@ -307,30 +294,18 @@ const SlidePresent = () => {
     };
 
     const onLeftArrowBtnClick = () => {
-        if (currentSlideId == 0) return;
-        presentingApi.moveToAnotherSlide({
-            id : +presentingId,
-            currentSlideIndex : currentSlideId - 1
-        })
         reloadContentDetail(listSlide[currentSlideId - 1].id);
         setCurrentSlideId(currentSlideId - 1);
-
     };
 
     const onRightArrowBtnClick = () => {
-        if (currentSlideId == listSlide.length - 1) return;
-        presentingApi.moveToAnotherSlide({
-            id : +presentingId,
-            currentSlideIndex : currentSlideId + 1
-        })
         reloadContentDetail(listSlide[currentSlideId + 1].id);
         setCurrentSlideId(currentSlideId + 1);
-
     };
 
     const navigate = useNavigate();
     const onStopPresenting = () => {
-        presentingApi
+        presentationApi
             .stopPresentingData({
                 presentingId: presentingId,
             })
@@ -342,28 +317,6 @@ const SlidePresent = () => {
     const changeTypePane = (isChatBox) => {
         setIsChoosingChatBox(isChatBox);
     };
-
-    const votingApi = useVotingApi();
-    const [listVoting, setListVoting] = useState([]);
-    const onVotingListBtnClick = () => {
-        setIsVotingListPanel(true);
-    }
-
-    const formatDate = (timestamp) => {
-        if (!timestamp) return "";
-        let date = new Date(timestamp);  // current date and time
-
-        let options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-        let dateString = date.toLocaleDateString('en-US', options);
-
-        options = { hour: '2-digit', minute: '2-digit' };
-        let timeString = date.toLocaleTimeString('en-US', options);
-
-        let formattedDate = `${dateString} ${timeString}`;
-        return formattedDate;
-    }
-
-    const [isVotingListPanel, setIsVotingListPanel] = useState(false);
     return (
         <>
             <Row style={{ padding: '32px 32px 70px 32px', height: '100vh', width: '100%' }}>
@@ -374,28 +327,10 @@ const SlidePresent = () => {
                         </p>
                         {slidePresentUi()}
                     </div>
-                    <div style={{ position: 'absolute', bottom: '5%', left: '5%' }} className='utils-container d-flex justify-content-between p-3'>
-                        <div onClick={() => onLeftArrowBtnClick()} disabled={currentSlideId == 0}
-                             className={`utils-btn ${currentSlideId == 0 ? 'disabled' : ''} me-3`}>
-                            <FontAwesomeIcon icon={faArrowLeft} size={'1x'} className='text-white' />
-                        </div>
-
-                        <div onClick={() => onRightArrowBtnClick()}
-                             className={`utils-btn ${currentSlideId == listSlide.length - 1 ? 'disabled' : ''}`}>
-                            <FontAwesomeIcon icon={faArrowRight} size={'1x'} className='text-white' />
-                        </div>
-                    </div>
-                    <div className='d-flex justify-content-end'
-                         style={{position : 'absolute', right : '5%', bottom : '5%'}}>
-                        <div className='utils-right-btn' style={{position : 'relative', padding : '16px'}}
-                             onClick={() => onVotingListBtnClick()}>
-                            <span style={{backgroundColor : 'rgb(25, 108, 255)', color : 'white', left : '50%', padding : '3px',
-                                position : 'absolute', transform : 'translateX(-50%) translateY(-125%)'}}>
-                                {listVoting.length}
-                            </span>
-                            <FontAwesomeIcon icon={faUser} size={'1x'}/>
-                        </div>
-                    </div>
+                    <Button className='utils-btn' style={{ left: '5%', top: '5%' }} onClick={() => navigate(`/group/${groupId}`)}>
+                        <FontAwesomeIcon icon={faArrowLeft} size={'1x'} />
+                        <span className='ms-2'>Back</span>
+                    </Button>
                 </Col>
                 <Col md={3} style={{ height: '100%' }}>
                     <div className='option-leftside-container'>
@@ -416,40 +351,13 @@ const SlidePresent = () => {
                             setQuestionList={setQuestionList}
                             questionEndRef={questionEndRef}
                             questionList={questionList}
-                            currentRole={currentRole}
                         ></QuestionBox>
                     )}
                 </Col>
                 <AutohideToast show={showToast} setShow={setShowToast}></AutohideToast>
-                <Modal show={isVotingListPanel} onHide={() => setIsVotingListPanel(false)}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>List voting</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Table responsive='sm'>
-                            <thead>
-                                <th>Username</th>
-                                <th>Option Vote</th>
-                                <th>Started time</th>
-                            </thead>
-                            <tbody>
-                            {
-                                listVoting.map(voting =>
-                                    <tr>
-                                        <td>{voting?.userVote?.username}</td>
-                                        <td>{voting?.option?.name}</td>
-                                        <td>{formatDate(+voting?.createdTime)}</td>
-                                    </tr>
-                                )
-                            }
-
-                            </tbody>
-                        </Table>
-                    </Modal.Body>
-                </Modal>
             </Row>
         </>
     );
 };
 
-export default SlidePresent;
+export default SlidePresentGuest;

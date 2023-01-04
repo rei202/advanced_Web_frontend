@@ -49,7 +49,7 @@ const PresentationVotingDetail = () => {
     const [maxYValue, setMaxYValue] = useState(0);
     const onSubmit = (data) => {
         const idOption = data?.idOption;
-        axios.post('/api/v1/vote', {'slideId': +slideId, optionId: +idOption})
+        axios.post('/api/v1/vote', {'slideId': +slideId, optionId: +idOption, createdTime : Date.now()})
             .then(resp => {
                 setListOptionVote(listOptionVote.map(option => {
                     if (option.id == idOption) option.numberVote++;

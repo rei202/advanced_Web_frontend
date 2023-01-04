@@ -9,6 +9,7 @@ import { over } from 'stompjs';
 import useContentApi from '../../../api/useContentApi';
 import Container from 'react-bootstrap/Container';
 import SocketContext from '../../../store/Context';
+import {ROOT_URL} from "../../../constant/common.const";
 
 const SlideShow = (props) => {
     const slideId = props.slideId;
@@ -140,7 +141,7 @@ const SlideShow = (props) => {
                 {!props.isEmtyList ? (
                     <div className='container-slide'>
                         <p>
-                            Go to <b>http://localhost:3000/advanced_Web_frontend#/presentation-voting</b> and use the code <b>{slideId}</b>
+                            Go to <b>{`${ROOT_URL}/presentation-voting`}</b> and use the code <b>{slideId}</b>
                         </p>
 
                         {slideShowUI()}

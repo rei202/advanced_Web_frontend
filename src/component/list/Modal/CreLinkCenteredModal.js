@@ -5,6 +5,7 @@ import useAxios from '../../../hooks/useAxios';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import {ROOT_URL} from "../../../constant/common.const";
 const schema = yup
     .object({
         // webLink: yup.string().max(12, 'Group name must be at most 12 characters').min(6, 'Group name must be at least 6 characters').required(),
@@ -42,7 +43,7 @@ function CreLinkCenteredModal(props) {
                 <Modal.Body>
                     <Form.Label>Link</Form.Label>
 
-                    <Card body>localhost:3000/invite/{id}</Card>
+                    <Card body>{ROOT_URL}/invite/{id}</Card>
                     <Form.Group className='mb-3' controlId='exampleForm.ControlTextarea1'>
                         <Form.Label>Email</Form.Label>
                         <Form.Control as='input' {...register('email')} autoFocus />

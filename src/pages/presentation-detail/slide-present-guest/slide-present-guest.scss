@@ -89,33 +89,7 @@
     border-radius: 999px;
 }
 
-.utils-btn{
-    background-color: rgb(33, 33, 34);
-    border-radius: 999px;
-    cursor: pointer;
-    padding: 5px;
-}
-
-.utils-btn.disabled{
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.utils-btn.disabled:hover{
-    background-color: rgb(33, 33, 34);
-}
-
-.utils-btn:hover {
-    background-color: lightgray;
-}
 
 .utils-button {
     cursor: pointer;
-}
-
-.utils-right-btn {
-    cursor: pointer;
-    background-color: rgba(183, 185, 189, 0.25);
-    border-radius: 99999px;
-
 }

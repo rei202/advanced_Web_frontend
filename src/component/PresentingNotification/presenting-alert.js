@@ -3,7 +3,10 @@ import Card from 'react-bootstrap/Card';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-regular-svg-icons';
 import './presenting-alert.css';
-const PresentingAlert = () => {
+import {useNavigate} from "react-router";
+const PresentingAlert = (props) => {
+    const presentingGroupData = props.presentingGroupData;
+    const navigate = useNavigate();
     return (
         <>
             <Card border='danger' className='pop-up'>
@@ -11,7 +14,8 @@ const PresentingAlert = () => {
                     <Card.Text style={{ marginRight: '5px', color: 'red' }}>
                         <FontAwesomeIcon icon={faBell} style={{ marginRight: '5px' }} />
                         Announce to everyone. Owner is presenting in this group. Click button to join{' '}
-                        <Button variant='primary' className='join-pre-btn'>
+                        <Button variant='primary' className='join-pre-btn'
+                                onClick={() => navigate(`/presenting-guest/${presentingGroupData}`)}>
                             Join
                         </Button>
                     </Card.Text>

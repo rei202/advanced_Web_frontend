@@ -12,6 +12,7 @@ import Signup from '../pages/Signup/sign-up';
 import Login from '../pages/Login/login';
 import Forgot from '../pages/Forget/forgot';
 import ResetPassword from '../pages/reset_password/resets_password';
+import SlidePresentGuest from "../pages/presentation-detail/slide-present-guest/slide-present-guest";
 
 const privateRoutes = [
     { path: '/profile', element: Profile, haveLayout: true },
@@ -23,6 +24,7 @@ const privateRoutes = [
     { path: '/presentation/:id', element: PresentationDetail },
     { path: '/presentation-voting/:id', element: PresentationVotingDetail },
     { path: '/presenting/:id', element: SlidePresent },
+    { path: '/presenting-guest/:id', element: SlidePresentGuest },
     { path: '/presentation-voting', element: PresentationVoting },
     { path: '/presentation-voting/:id', element: PresentationVotingDetail },
 ];
