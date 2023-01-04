@@ -7,19 +7,24 @@
     padding: 5px;
 }
 .group-function-icon {
-    font-size: 20px;
-    border: 2px;
+    font-size: 16pt;
 }
 #footer-card-group {
     display: flex;
     justify-content: space-around;
+    padding: 0;
 }
-.group-deletion-icon {
-    width: 50%;
+.group-deletion-wapper {
+    display: flex;
+    align-items: center;
+    width: 48px;
+    height: 48px;
+    justify-content: center;
     /* background-color: white; */
-}
-.group-deletion-icon :hover {
-    background-color: white;
+    &:hover{
+        background-color: #bbded6;
+        border-radius: 50%;
+    }
 }
 .role-tag {
     position: absolute;
@@ -29,5 +34,20 @@
     background-color: yellow;
     padding: 5px;
     border: 1px black solid;
+    z-index: 2;
     border-radius: 10px 0px 0px 10px;
+}
+.presenting-tag {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    font-size: 14pt;
+    z-index: 2;
+    background-color: #61dafb;
+    padding: 5px;
+    border: 1px black solid;
+    border-radius: 10px 0px 0px 10px;
+    &.non-role-tag{
+        top: 0;
+    }
 }

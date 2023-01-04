@@ -26,12 +26,12 @@ function Home() {
             .then((res) => {
                 setListMyGroup(
                     res.data.filter((value) => {
-                        return value.roleUserInGroup === 'ROLE_OWNER' || value.roleUserInGroup === 'ROLE_COOWNER';
+                        return value.roleUserInGroup === 'ROLE_OWNER';
                     })
                 );
                 setListParticipating(
                     res.data.filter((value) => {
-                        return value.roleUserInGroup === 'ROLE_MEMBER';
+                        return value.roleUserInGroup === 'ROLE_MEMBER' || value.roleUserInGroup === 'ROLE_COOWNER';
                     })
                 );
             })
@@ -86,7 +86,7 @@ function Home() {
             ) : (
                 <ListGroupView props={listParticipating} />
             )}
-
+            <div style={{ marginBottom: '20px' }}></div>
             <CreGroupCenteredModal handler={handleCreateGroup} show={showModal} onHide={() => setShowModal(false)} />
         </>
     );

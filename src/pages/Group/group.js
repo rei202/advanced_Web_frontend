@@ -1,7 +1,7 @@
 import './Group.css';
 
 import { useSearchParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import useAxios from '../../hooks/useAxios';
 import ListOwnerView from '../../component/list/ListOwnerView';
 import ListMemberView from '../../component/list/ListMemberView';
@@ -13,6 +13,8 @@ import EmptyNotification from '../../component/EmptyNotification';
 import PopUp from '../../component/PresentingNotification/presenting-alert';
 import PresentingAlert from '../../component/PresentingNotification/presenting-alert';
 import PresentingPopUp from '../../component/PresentingNotification/pop-up';
+import useNotificationApi from '../../api/useNotificationApi';
+import SocketContext from '../../store/Context';
 const Group = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     searchParams.get('id');
@@ -21,8 +23,10 @@ const Group = () => {
     const [listMember, setListMember] = useState([]);
     const [myAccountInGroup, setMyAccountInGroup] = useState({});
     const [showModal, setShowModal] = useState(false);
-    const [showPresentingPopup, setShowPresentingPopup] = useState(true);
-
+    const [showPresentingPopup, setShowPresentingPopup] = useState(false);
+    const [showPresentingNoti, setShowPresentingNoti] = useState(false);
+    const stompClient = useContext(SocketContext)
+    const notificationApi = useNotificationApi();
     const axios = useAxios();
     const { id } = useParams();
     const handlerUpgrade = (data) => {
@@ -91,6 +95,27 @@ const Group = () => {
     };
 
     useEffect(() => {
+        if (stompClient.isConnected) connect();
+    }, [stompClient.isConnected]);
+
+    const connect = () => {
+        onConnected();
+    };
+
+    const onConnected = () => {
+        if (stompClient.isConnected) stompClient.client.subscribe(`/topic/notification/${id}`, onNotification);
+    };
+    const onNotification = (payload) => {
+        var payloadData = JSON.parse(payload.body);
+        if (payloadData === true) {
+            setShowPresentingNoti(true);
+            setShowPresentingPopup(true);
+        } else {
+            setShowPresentingNoti(false);
+        }
+    };
+
+    useEffect(() => {
         axios
             .get('api/participant/1?id=' + id)
             .then((res) => {
@@ -112,15 +137,20 @@ const Group = () => {
             .catch((err) => {
                 console.log(err);
             });
+
+        notificationApi.checkPresenting(id).then((res) => {
+            if (res.data !== null) {
+                setShowPresentingPopup(res.data.isPresenting);
+                setShowPresentingNoti(res.data.isPresenting);
+            }
+        });
     }, []);
 
     return (
         <>
             {' '}
             {/* <PopUp></PopUp> */}
-            <div>
-                <PresentingAlert />
-            </div>
+            <div>{showPresentingNoti && <PresentingAlert />}</div>
             <div className='admin-assignment-wapper'>
                 <h3 className='role-title'>Admin</h3>
                 <div className='cre-link-btn-wapper'>
