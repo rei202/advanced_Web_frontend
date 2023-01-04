@@ -18,8 +18,11 @@ const PresentationVoting = () => {
     const [validCode, setValidCode] = useState(true);
     const onSubmitButtonClick = () => {
         setValidCode(true);
-        // axios.get(`/api/v1/slide/${code}`)
-        slideApi.getSlideDetail(code)
+        slideApi.checkUserWithSlide(code)
+            .then((resp) => {
+                console.log(resp);
+                if (resp.data) return slideApi.getSlideDetail(code)
+            })
             .then(resp => {
                 if (resp?.data?.id) {
                     setValidCode(true);

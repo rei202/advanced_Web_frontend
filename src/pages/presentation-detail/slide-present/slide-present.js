@@ -5,10 +5,10 @@ import { useEffect, useRef, useState, useContext } from 'react';
 import useAxios from '../../../hooks/useAxios';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
-import { useNavigate, useParams } from 'react-router';
+import {useLocation, useNavigate, useParams} from 'react-router';
 import useSlideApi from '../../../api/useSlideApi';
 import useContentApi from '../../../api/useContentApi';
-import {BACKEND_URL, ROOT_URL} from '../../../constant/common.const';
+import {BACKEND_URL, role_user, ROOT_URL} from '../../../constant/common.const';
 import SocketContext from '../../../store/Context';
 import Chat from '../../../component/Chat/Chat.js';
 import AutohideToast from '../../../component/view/Toast';
@@ -23,6 +23,7 @@ import {faArrowLeft, faArrowRight, faUser, faXmark} from '@fortawesome/free-soli
 import usePresentationApi from '../../../api/usePresentationApi';
 import usePresentingApi from "../../../api/usePresentingApi";
 import useVotingApi from "../../../api/useVotingApi";
+import useGroupApi from "../../../api/useGroupApi";
 
 var stompClient = null;
 var chatArr = [];
@@ -64,6 +65,9 @@ const SlidePresent = () => {
     const [currentRole, setCurrentRole] = useState();
     const stompClient = useContext(SocketContext);
 
+    const location = useLocation();
+    const paramSearch = new URLSearchParams(location.search);
+
     const reloadContentDetail = (slideId) => {
         return votingApi.getListVoting(slideId)
             .then((resp) => {
@@ -101,13 +105,24 @@ const SlidePresent = () => {
             });
     };
 
+    const groupApi = useGroupApi();
     const reloadData = () => {
+        let presentationIdTmp;
         presentingApi
             .getPresentingData(presentingId)
             .then((resp) => {
                 setGroupId(resp?.data?.groupId);
                 setPreId(resp?.data?.presentation?.id);
-                return slideApi.getListSlide(resp?.data?.presentation?.id);
+                presentationIdTmp = resp?.data?.presentation?.id;
+                return groupApi.checkUserInGroup(localStorage.getItem('username'), resp?.data?.groupId);
+                // return slideApi.getListSlide(resp?.data?.presentation?.id);
+            })
+            .then((resp) => {
+                if (resp.data.roleUserInGroup == role_user.owner || resp.data.roleUserInGroup == role_user.coOwner)
+                    return slideApi.getListSlide(presentationIdTmp, true);
+
+                return slideApi.getListSlide(presentationIdTmp);
+
             })
             .then((resp) => {
                 const listSlideTmp = resp.data;

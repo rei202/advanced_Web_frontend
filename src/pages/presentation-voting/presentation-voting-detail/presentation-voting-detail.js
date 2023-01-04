@@ -4,7 +4,7 @@ import {
     Container,
     Dropdown, Form
 } from "react-bootstrap";
-import {useParams} from "react-router";
+import {useNavigate, useParams} from "react-router";
 import useAxios from "../../../hooks/useAxios";
 import {useEffect, useState} from "react";
 import {useSubmit} from "react-router-dom";
@@ -12,6 +12,7 @@ import {useForm} from "react-hook-form";
 import useSlideApi from "../../../api/useSlideApi";
 import useContentApi from "../../../api/useContentApi";
 import {Bar, BarChart, LabelList, ResponsiveContainer, XAxis, YAxis} from "recharts";
+import useVotingApi from "../../../api/useVotingApi";
 
 const PresentationVotingDetail = () => {
     const {handleSubmit, register} = useForm();
@@ -64,7 +65,26 @@ const PresentationVotingDetail = () => {
             })
     }
 
+    const navigate = useNavigate();
+    const voteApi = useVotingApi();
+    const [isUserVoted, setIsUserVoted] = useState(false);
     useEffect(() => {
+        slideApi.checkUserWithSlide(slideId)
+            .then((resp) => {
+                if (!resp.data) navigate('/presentation-voting');
+                return voteApi.getListVoting(slideId)
+            })
+            .then(resp => {
+                console.log(resp.data);
+                resp.data.forEach(
+                    respData => {
+                        if (respData.userVote.username == localStorage.getItem('username')) setIsUserVoted(true);
+                    }
+                )
+            })
+            .catch(err => {
+                console.log(err);
+            })
         reloadOptionVote();
     }, [])
     return (
@@ -84,7 +104,8 @@ const PresentationVotingDetail = () => {
                                 </Form.Check>
                             )}
                         </div>
-                        <Button type='submit' style={{width: '500px'}}>Submit</Button>
+                        <p className='text-danger text-center' hidden={!isUserVoted}>You have already voted on this question.</p>
+                        <Button type='submit' style={{width: '500px'}} disabled={isUserVoted}>Submit</Button>
                     </div>
 
                     <div hidden={!isGraphShow}>

@@ -104,6 +104,7 @@ const PresentationDetail = () => {
                     listSlide.push(resp.data);
                     setListSlide([...listSlide]);
                     setChoosenSlideId(listSlide.at(-1).id);
+                    setIsEmtyList(false);
                 }
             })
             .catch((err) => {
@@ -131,6 +132,7 @@ const PresentationDetail = () => {
                 if (listSlideAfterDelete.length > 0) {
                     choosenSlideAfterDelete = listSlideAfterDelete[(indexDeleteSlide == 0) ? 0 : indexDeleteSlide - 1];
                 }
+                if (listSlideAfterDelete.length == 0) setIsEmtyList(true);
                 setChoosenSlideId(choosenSlideAfterDelete.id);
             })
             .catch((err) => {
