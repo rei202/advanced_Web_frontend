@@ -42,6 +42,7 @@ const SlideShow = (props) => {
                     setHeading(resp?.data?.heading);
                     setSubheading(resp?.data?.subheading);
                 }
+                props.onHavingData();
             })
             .catch((err) => {
                 console.log(err);

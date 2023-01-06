@@ -64,7 +64,7 @@ const SlideEdit = (props) => {
                     setSubheading(resp?.data?.subheading);
                     setSlideTypeId(resp?.data?.slideTypeId);
                 }
-
+                props.onHavingData();
             })
             .catch(err => {
 

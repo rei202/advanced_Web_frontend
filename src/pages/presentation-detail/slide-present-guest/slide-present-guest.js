@@ -23,6 +23,7 @@ import usePresentationApi from '../../../api/usePresentationApi';
 import usePresentingApi from '../../../api/usePresentingApi';
 import { ROOT_URL } from '../../../constant/common.const';
 import useGroupApi from '../../../api/useGroupApi';
+import Loading from "../../../component/Loading/Loading";
 
 var stompClient = null;
 var chatArr = [];
@@ -146,6 +147,7 @@ const SlidePresentGuest = () => {
             setIsSetSocket(true);
             for (const slide of listSlide) if (slide?.content?.slideType == 1) connect(slide.id);
             stompClient.client.subscribe(`/topic/presenting/${presentingId}`, onSlideChangeMessage);
+            stompClient.client.subscribe(`/topic/stop-presenting/${presentingId}`, onNotificationMessage);
             stompClient.client.subscribe(`/topic/chatroom/${presentingId}`, onChatMessage);
             stompClient.client.subscribe(`/topic/question/${presentingId}`, onQuestion);
             setIsLoading(false);
@@ -154,13 +156,19 @@ const SlidePresentGuest = () => {
         }
     }, [stompClient.isConnected, listSlide]);
 
+    const onNotificationMessage = (payload) => {
+        console.log(payload);
+        if (payload.body == 'false') navigate(`/group/${groupId}`);
+    }
+
     useEffect(() => {
         return () => {
             for (const slide of listSlide)
                 if (slide?.content?.slideType == 1) {
                     stompClient.client.unsubscribe(`/topic/slide/${slide.id}`);
                 }
-            stompClient.client.unsubscribe(`/topic/presenting/${presentingId}`);
+            stompClient.client.unsubscribe(`/topic/notification/${presentingId}`);
+            stompClient.client.unsubscribe(`/topic/stop-presenting/${presentingId}`);
             stompClient.client.unsubscribe(`/topic/chatroom/${preId}`);
             stompClient.client.unsubscribe(`/topic/question/${preId}`);
         };
@@ -339,45 +347,50 @@ const SlidePresentGuest = () => {
     };
     return (
         <>
-            <Row style={{ padding: '32px 32px 70px 32px', height: '100vh', width: '100%' }}>
-                <Col md={9} style={{ height: '100%', position: 'relative' }}>
-                    <div className='container-slide'>
-                        <p>
-                            Go to <b>{`${ROOT_URL}/presentation-voting`}</b> and use the code <b>{slide?.id}</b>
-                        </p>
-                        {slidePresentUi()}
-                    </div>
-                    <Button className='utils-btn' style={{ left: '5%', top: '5%' }} onClick={() => navigate(`/group/${groupId}`)}>
-                        <FontAwesomeIcon icon={faArrowLeft} size={'1x'} />
-                        <span className='ms-2'>Back</span>
-                    </Button>
-                </Col>
-                <Col md={3} style={{ height: '100%' }}>
-                    <div className='option-leftside-container'>
-                        <div className={isChoosingChatBox ? 'chatbox-option chosen' : 'chatbox-option'} onClick={() => changeTypePane(true)}>
-                            Chat box
-                        </div>
-                        <div className={!isChoosingChatBox ? 'questionbox-option chosen' : 'questionbox-option'} onClick={() => changeTypePane(false)}>
-                            Question Box
-                        </div>
-                    </div>
-                    {isChoosingChatBox ? (
-                        <Chat isLoading={isLoading} preId={presentingId} messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
-                            {' '}
-                        </Chat>
-                    ) : (
-                        <QuestionBox
-                            isLoading={isLoading}
-                            preId={presentingId}
-                            setQuestionList={setQuestionList}
-                            questionEndRef={questionEndRef}
-                            questionList={questionList}
-                            currentRole={currentRole}
-                        ></QuestionBox>
-                    )}
-                </Col>
-                <AutohideToast show={showToast} setShow={setShowToast}></AutohideToast>
-            </Row>
+            {
+                isLoading ?
+                <Loading/> :
+                <Row style={{ padding: '32px 32px 70px 32px', height: '100vh', width: '100%' }}>
+                        <Col md={9} style={{ height: '100%', position: 'relative' }}>
+                            <div className='container-slide'>
+                                <p>
+                                    Go to <b>{`${ROOT_URL}/presentation-voting`}</b> and use the code <b>{slide?.id}</b>
+                                </p>
+                                {slidePresentUi()}
+                            </div>
+                            <Button className='utils-btn' style={{ left: '5%', top: '5%' }} onClick={() => navigate(`/group/${groupId}`)}>
+                                <FontAwesomeIcon icon={faArrowLeft} size={'1x'} />
+                                <span className='ms-2'>Back</span>
+                            </Button>
+                        </Col>
+                        <Col md={3} style={{ height: '100%' }}>
+                            <div className='option-leftside-container'>
+                                <div className={isChoosingChatBox ? 'chatbox-option chosen' : 'chatbox-option'} onClick={() => changeTypePane(true)}>
+                                    Chat box
+                                </div>
+                                <div className={!isChoosingChatBox ? 'questionbox-option chosen' : 'questionbox-option'} onClick={() => changeTypePane(false)}>
+                                    Question Box
+                                </div>
+                            </div>
+                            {isChoosingChatBox ? (
+                                <Chat isLoading={isLoading} preId={presentingId} messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
+                                    {' '}
+                                </Chat>
+                            ) : (
+                                <QuestionBox
+                                    isLoading={isLoading}
+                                    preId={presentingId}
+                                    setQuestionList={setQuestionList}
+                                    questionEndRef={questionEndRef}
+                                    questionList={questionList}
+                                    currentRole={currentRole}
+                                ></QuestionBox>
+                            )}
+                        </Col>
+                        <AutohideToast show={showToast} setShow={setShowToast}></AutohideToast>
+                    </Row>
+
+            }
         </>
     );
 };

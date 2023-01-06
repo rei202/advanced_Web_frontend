@@ -2,9 +2,6 @@ import './slide-present.scss';
 import {Button, Col, Form, Modal, Row, Table} from 'react-bootstrap';
 import { Bar, ResponsiveContainer, XAxis, YAxis, BarChart, LabelList } from 'recharts';
 import { useEffect, useRef, useState, useContext } from 'react';
-import useAxios from '../../../hooks/useAxios';
-import SockJS from 'sockjs-client';
-import { over } from 'stompjs';
 import {useLocation, useNavigate, useParams} from 'react-router';
 import useSlideApi from '../../../api/useSlideApi';
 import useContentApi from '../../../api/useContentApi';
@@ -20,10 +17,10 @@ import useQuestionApi from '../../../api/useQuestionApi';
 import Container from 'react-bootstrap/Container';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faArrowLeft, faArrowRight, faUser, faXmark} from '@fortawesome/free-solid-svg-icons';
-import usePresentationApi from '../../../api/usePresentationApi';
 import usePresentingApi from "../../../api/usePresentingApi";
 import useVotingApi from "../../../api/useVotingApi";
 import useGroupApi from "../../../api/useGroupApi";
+import Loading from "../../../component/Loading/Loading";
 
 var stompClient = null;
 var chatArr = [];
@@ -35,15 +32,15 @@ const SlidePresent = () => {
     const questionEndRef = useRef();
 
     const [playRingTone] = useSound(boopSfx);
+
+
     const params = useParams();
     const slideApi = useSlideApi();
     const chatApi = useChatApi();
     const questionApi = useQuestionApi();
     const contentApi = useContentApi();
-    const presentationApi = usePresentationApi();
     const presentingApi = usePresentingApi();
 
-    const axios = useAxios();
     const [listSlide, setListSlide] = useState([]);
     const [slide, setSlide] = useState();
     const [listOptionVote, setListOptionVote] = useState([]);
@@ -65,7 +62,6 @@ const SlidePresent = () => {
     const [currentRole, setCurrentRole] = useState();
     const stompClient = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(true);
-
     const location = useLocation();
     const paramSearch = new URLSearchParams(location.search);
 
@@ -116,7 +112,6 @@ const SlidePresent = () => {
                 setPreId(resp?.data?.presentation?.id);
                 presentationIdTmp = resp?.data?.presentation?.id;
                 return groupApi.checkUserInGroup(localStorage.getItem('username'), resp?.data?.groupId);
-                // return slideApi.getListSlide(resp?.data?.presentation?.id);
             })
             .then((resp) => {
                 if (resp.data.roleUserInGroup == role_user.owner || resp.data.roleUserInGroup == role_user.coOwner)
@@ -144,18 +139,11 @@ const SlidePresent = () => {
 
     useEffect(() => {
         reloadData();
-        // return () => {
-        //     stompClient.unsubscribe(`/topic/slide/${slide?.id}`);
-        //     stompClient.unsubscribe(`/topic/chatroom/${preId}`);
-        //     stompClient.unsubscribe(`/topic/question/${preId}`);
-        //
-        //     stompClient.disconnect();
-        // };
     }, [stompClient.isConnected]);
 
     const [isSetSocket, setIsSetSocket] = useState(false);
     useEffect(() => {
-        if (stompClient.isConnected && listSlide && !isSetSocket) {
+        if (stompClient.isConnected && listSlide && listSlide.length > 0 && !isSetSocket) {
             setIsSetSocket(true);
             for (const slide of listSlide)
                 if (slide?.content?.slideType == 1) connect(slide.id);
@@ -219,6 +207,7 @@ const SlidePresent = () => {
             });
             setListOptionVote(optionList);
         }
+
 
         votingApi.getListVoting(listSlide[currentSlideId].id)
             .then(resp => setListVoting(resp.data));
@@ -383,94 +372,100 @@ const SlidePresent = () => {
     const [isVotingListPanel, setIsVotingListPanel] = useState(false);
     return (
         <>
-            <Row style={{ padding: '32px 32px 70px 32px', height: '100vh', width: '100%' }}>
-                <Col md={9} style={{ height: '100%', position: 'relative' }}>
-                    <div className='container-slide'>
-                        <p>
-                            Go to <b>{`${ROOT_URL}/presentation-voting`}</b> and use the code <b>{slide?.id}</b>
-                        </p>
-                        {slidePresentUi()}
-                    </div>
+            {
+                isLoading ?
+                    <Loading/>
+                    :
+                    <Row style={{ padding: '32px 32px 70px 32px', height: '100vh', width: '100%' }}>
+                        <Col md={9} style={{ height: '100%', position: 'relative' }}>
+                            <div className='container-slide'>
+                                <p>
+                                    Go to <b>{`${ROOT_URL}/presentation-voting`}</b> and use the code <b>{slide?.id}</b>
+                                </p>
+                                {slidePresentUi()}
+                            </div>
 
-                    <Button className='utils-btn' style={{position : 'absolute', left : '5%', top : '5%', padding : '10px !important'}}
-                            onClick={() => onStopPresenting()}>
-                        <FontAwesomeIcon icon={faXmark} size={'1x'}/>
-                    </Button>
-                    <div style={{ position: 'absolute', bottom: '5%', left: '5%' }} className='utils-container d-flex justify-content-between p-3'>
-                        <div onClick={() => onLeftArrowBtnClick()} disabled={currentSlideId == 0}
-                             className={`utils-btn ${currentSlideId == 0 ? 'disabled' : ''} me-3`}>
-                            <FontAwesomeIcon icon={faArrowLeft} size={'1x'} className='text-white' />
-                        </div>
+                            <Button className='utils-btn' style={{position : 'absolute', left : '5%', top : '5%', padding : '10px !important'}}
+                                    onClick={() => onStopPresenting()}>
+                                <FontAwesomeIcon icon={faXmark} size={'1x'}/>
+                            </Button>
+                            <div style={{ position: 'absolute', bottom: '5%', left: '5%' }} className='utils-container d-flex justify-content-between p-3'>
+                                <div onClick={() => onLeftArrowBtnClick()} disabled={currentSlideId == 0}
+                                     className={`utils-btn ${currentSlideId == 0 ? 'disabled' : ''} me-3`}>
+                                    <FontAwesomeIcon icon={faArrowLeft} size={'1x'} className='text-white' />
+                                </div>
 
-                        <div onClick={() => onRightArrowBtnClick()}
-                             className={`utils-btn ${currentSlideId == listSlide.length - 1 ? 'disabled' : ''}`}>
-                            <FontAwesomeIcon icon={faArrowRight} size={'1x'} className='text-white' />
-                        </div>
-                    </div>
-                    <div className='d-flex justify-content-end'
-                         style={{position : 'absolute', right : '5%', bottom : '5%'}}>
-                        <div className='utils-right-btn' style={{position : 'relative', padding : '16px'}}
-                             onClick={() => onVotingListBtnClick()}>
+                                <div onClick={() => onRightArrowBtnClick()}
+                                     className={`utils-btn ${currentSlideId == listSlide.length - 1 ? 'disabled' : ''}`}>
+                                    <FontAwesomeIcon icon={faArrowRight} size={'1x'} className='text-white' />
+                                </div>
+                            </div>
+                            <div className='d-flex justify-content-end'
+                                 style={{position : 'absolute', right : '5%', bottom : '5%'}}>
+                                <div className='utils-right-btn' style={{position : 'relative', padding : '16px'}}
+                                     onClick={() => onVotingListBtnClick()}>
                             <span style={{backgroundColor : 'rgb(25, 108, 255)', color : 'white', left : '50%', padding : '3px',
                                 position : 'absolute', transform : 'translateX(-50%) translateY(-125%)'}}>
                                 {listVoting.length}
                             </span>
-                            <FontAwesomeIcon icon={faUser} size={'1x'}/>
-                        </div>
-                    </div>
-                </Col>
-                <Col md={3} style={{ height: '100%' }}>
-                    <div className='option-leftside-container'>
-                        <div className={isChoosingChatBox ? 'chatbox-option chosen' : 'chatbox-option'} onClick={() => changeTypePane(true)}>
-                            Chat box
-                        </div>
-                        <div className={!isChoosingChatBox ? 'questionbox-option chosen' : 'questionbox-option'} onClick={() => changeTypePane(false)}>
-                            Question Box
-                        </div>
-                    </div>
-                    {isChoosingChatBox ? (
-                        <Chat isLoading={isLoading} preId={presentingId} messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
-                            {' '}
-                        </Chat>
-                    ) : (
-                        <QuestionBox
-                            isLoading={isLoading}
-                            preId={presentingId}
-                            setQuestionList={setQuestionList}
-                            questionEndRef={questionEndRef}
-                            questionList={questionList}
-                            currentRole={currentRole}
-                        ></QuestionBox>
-                    )}
-                </Col>
-                <AutohideToast show={showToast} setShow={setShowToast}></AutohideToast>
-                <Modal show={isVotingListPanel} onHide={() => setIsVotingListPanel(false)}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>List voting</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Table responsive='sm'>
-                            <thead>
-                                <th>Username</th>
-                                <th>Option Vote</th>
-                                <th>Started time</th>
-                            </thead>
-                            <tbody>
-                            {
-                                listVoting.map(voting =>
-                                    <tr>
-                                        <td>{voting?.userVote?.username}</td>
-                                        <td>{voting?.option?.name}</td>
-                                        <td>{formatDate(+voting?.createdTime)}</td>
-                                    </tr>
-                                )
-                            }
+                                    <FontAwesomeIcon icon={faUser} size={'1x'}/>
+                                </div>
+                            </div>
+                        </Col>
+                        <Col md={3} style={{ height: '100%' }}>
+                            <div className='option-leftside-container'>
+                                <div className={isChoosingChatBox ? 'chatbox-option chosen' : 'chatbox-option'} onClick={() => changeTypePane(true)}>
+                                    Chat box
+                                </div>
+                                <div className={!isChoosingChatBox ? 'questionbox-option chosen' : 'questionbox-option'} onClick={() => changeTypePane(false)}>
+                                    Question Box
+                                </div>
+                            </div>
+                            {isChoosingChatBox ? (
+                                <Chat isLoading={isLoading} preId={presentingId} messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
+                                    {' '}
+                                </Chat>
+                            ) : (
+                                <QuestionBox
+                                    isLoading={isLoading}
+                                    preId={presentingId}
+                                    setQuestionList={setQuestionList}
+                                    questionEndRef={questionEndRef}
+                                    questionList={questionList}
+                                    currentRole={currentRole}
+                                ></QuestionBox>
+                            )}
+                        </Col>
+                        <AutohideToast show={showToast} setShow={setShowToast}></AutohideToast>
+                        <Modal show={isVotingListPanel} onHide={() => setIsVotingListPanel(false)}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>List voting</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <Table responsive='sm'>
+                                    <thead>
+                                    <th>Username</th>
+                                    <th>Option Vote</th>
+                                    <th>Started time</th>
+                                    </thead>
+                                    <tbody>
+                                    {
+                                        listVoting.map(voting =>
+                                            <tr>
+                                                <td>{voting?.userVote?.username}</td>
+                                                <td>{voting?.option?.name}</td>
+                                                <td>{formatDate(+voting?.createdTime)}</td>
+                                            </tr>
+                                        )
+                                    }
 
-                            </tbody>
-                        </Table>
-                    </Modal.Body>
-                </Modal>
-            </Row>
+                                    </tbody>
+                                </Table>
+                            </Modal.Body>
+                        </Modal>
+                    </Row>
+
+            }
         </>
     );
 };
