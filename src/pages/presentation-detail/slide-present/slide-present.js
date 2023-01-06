@@ -1,14 +1,14 @@
 import './slide-present.scss';
-import {Button, Col, Form, Modal, Row, Table} from 'react-bootstrap';
+import { Button, Col, Form, Modal, Row, Table } from 'react-bootstrap';
 import { Bar, ResponsiveContainer, XAxis, YAxis, BarChart, LabelList } from 'recharts';
 import { useEffect, useRef, useState, useContext } from 'react';
 import useAxios from '../../../hooks/useAxios';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
-import {useLocation, useNavigate, useParams} from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import useSlideApi from '../../../api/useSlideApi';
 import useContentApi from '../../../api/useContentApi';
-import {BACKEND_URL, role_user, ROOT_URL} from '../../../constant/common.const';
+import { BACKEND_URL, role_user, ROOT_URL } from '../../../constant/common.const';
 import SocketContext from '../../../store/Context';
 import Chat from '../../../component/Chat/Chat.js';
 import AutohideToast from '../../../component/view/Toast';
@@ -19,11 +19,11 @@ import QuestionBox from '../../../component/Question/QuestionBox';
 import useQuestionApi from '../../../api/useQuestionApi';
 import Container from 'react-bootstrap/Container';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faArrowLeft, faArrowRight, faUser, faXmark} from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faArrowRight, faUser, faXmark } from '@fortawesome/free-solid-svg-icons';
 import usePresentationApi from '../../../api/usePresentationApi';
-import usePresentingApi from "../../../api/usePresentingApi";
-import useVotingApi from "../../../api/useVotingApi";
-import useGroupApi from "../../../api/useGroupApi";
+import usePresentingApi from '../../../api/usePresentingApi';
+import useVotingApi from '../../../api/useVotingApi';
+import useGroupApi from '../../../api/useGroupApi';
 
 var stompClient = null;
 var chatArr = [];
@@ -64,15 +64,17 @@ const SlidePresent = () => {
     const presentingId = params.id;
     const [currentRole, setCurrentRole] = useState();
     const stompClient = useContext(SocketContext);
+    const [isLoading, setIsLoading] = useState(true);
 
     const location = useLocation();
     const paramSearch = new URLSearchParams(location.search);
 
     const reloadContentDetail = (slideId) => {
-        return votingApi.getListVoting(slideId)
+        return votingApi
+            .getListVoting(slideId)
             .then((resp) => {
                 setListVoting(resp.data);
-                return slideApi.getSlideDetail(slideId)
+                return slideApi.getSlideDetail(slideId);
             })
             .then((resp) => {
                 setSlide(resp.data);
@@ -122,7 +124,6 @@ const SlidePresent = () => {
                     return slideApi.getListSlide(presentationIdTmp, true);
 
                 return slideApi.getListSlide(presentationIdTmp);
-
             })
             .then((resp) => {
                 const listSlideTmp = resp.data;
@@ -156,19 +157,18 @@ const SlidePresent = () => {
     useEffect(() => {
         if (stompClient.isConnected && listSlide && !isSetSocket) {
             setIsSetSocket(true);
-            for (const slide of listSlide)
-                if (slide?.content?.slideType == 1) connect(slide.id);
+            for (const slide of listSlide) if (slide?.content?.slideType == 1) connect(slide.id);
             stompClient.client.subscribe(`/topic/chatroom/${presentingId}`, onChatMessage);
             stompClient.client.subscribe(`/topic/question/${presentingId}`, onQuestion);
+            setIsLoading(false);
             loadOldMessage();
             loadOldQuestion();
         }
-    }, [stompClient.isConnected, listSlide])
+    }, [stompClient.isConnected, listSlide]);
 
     useEffect(() => {
         return () => {
-            for (const slide of listSlide)
-                if (slide?.content?.slideType == 1) connect(slide.id);
+            for (const slide of listSlide) if (slide?.content?.slideType == 1) connect(slide.id);
             stompClient.client.unsubscribe(`/topic/chatroom/${preId}`);
             stompClient.client.unsubscribe(`/topic/question/${preId}`);
         };
@@ -203,8 +203,8 @@ const SlidePresent = () => {
 
     const onConnected = (slideId) => {
         stompClient.client.subscribe(`/topic/slide/${slideId}`, onPrivateMessage);
-        stompClient.client.subscribe(`/topic/chatroom/${presentingId}`, onChatMessage);
-        stompClient.client.subscribe(`/topic/question/${presentingId}`, onQuestion);
+        // stompClient.client.subscribe(`/topic/chatroom/${presentingId}`, onChatMessage);
+        // stompClient.client.subscribe(`/topic/question/${presentingId}`, onQuestion);
     };
 
     const onPrivateMessage = (payload) => {
@@ -218,8 +218,7 @@ const SlidePresent = () => {
             setListOptionVote(optionList);
         }
 
-        votingApi.getListVoting(listSlide[currentSlideId].id)
-            .then(resp => setListVoting(resp.data));
+        votingApi.getListVoting(listSlide[currentSlideId].id).then((resp) => setListVoting(resp.data));
     };
 
     // useEffect(() => {
@@ -324,23 +323,21 @@ const SlidePresent = () => {
     const onLeftArrowBtnClick = () => {
         if (currentSlideId == 0) return;
         presentingApi.moveToAnotherSlide({
-            id : +presentingId,
-            currentSlideIndex : currentSlideId - 1
-        })
+            id: +presentingId,
+            currentSlideIndex: currentSlideId - 1,
+        });
         reloadContentDetail(listSlide[currentSlideId - 1].id);
         setCurrentSlideId(currentSlideId - 1);
-
     };
 
     const onRightArrowBtnClick = () => {
         if (currentSlideId == listSlide.length - 1) return;
         presentingApi.moveToAnotherSlide({
-            id : +presentingId,
-            currentSlideIndex : currentSlideId + 1
-        })
+            id: +presentingId,
+            currentSlideIndex: currentSlideId + 1,
+        });
         reloadContentDetail(listSlide[currentSlideId + 1].id);
         setCurrentSlideId(currentSlideId + 1);
-
     };
 
     const navigate = useNavigate();
@@ -362,11 +359,11 @@ const SlidePresent = () => {
     const [listVoting, setListVoting] = useState([]);
     const onVotingListBtnClick = () => {
         setIsVotingListPanel(true);
-    }
+    };
 
     const formatDate = (timestamp) => {
-        if (!timestamp) return "";
-        let date = new Date(timestamp);  // current date and time
+        if (!timestamp) return '';
+        let date = new Date(timestamp); // current date and time
 
         let options = { day: '2-digit', month: '2-digit', year: 'numeric' };
         let dateString = date.toLocaleDateString('en-US', options);
@@ -376,7 +373,7 @@ const SlidePresent = () => {
 
         let formattedDate = `${dateString} ${timeString}`;
         return formattedDate;
-    }
+    };
 
     const [isVotingListPanel, setIsVotingListPanel] = useState(false);
     return (
@@ -390,25 +387,33 @@ const SlidePresent = () => {
                         {slidePresentUi()}
                     </div>
                     <div style={{ position: 'absolute', bottom: '5%', left: '5%' }} className='utils-container d-flex justify-content-between p-3'>
-                        <div onClick={() => onLeftArrowBtnClick()} disabled={currentSlideId == 0}
-                             className={`utils-btn ${currentSlideId == 0 ? 'disabled' : ''} me-3`}>
+                        <div
+                            onClick={() => onLeftArrowBtnClick()}
+                            disabled={currentSlideId == 0}
+                            className={`utils-btn ${currentSlideId == 0 ? 'disabled' : ''} me-3`}
+                        >
                             <FontAwesomeIcon icon={faArrowLeft} size={'1x'} className='text-white' />
                         </div>
 
-                        <div onClick={() => onRightArrowBtnClick()}
-                             className={`utils-btn ${currentSlideId == listSlide.length - 1 ? 'disabled' : ''}`}>
+                        <div onClick={() => onRightArrowBtnClick()} className={`utils-btn ${currentSlideId == listSlide.length - 1 ? 'disabled' : ''}`}>
                             <FontAwesomeIcon icon={faArrowRight} size={'1x'} className='text-white' />
                         </div>
                     </div>
-                    <div className='d-flex justify-content-end'
-                         style={{position : 'absolute', right : '5%', bottom : '5%'}}>
-                        <div className='utils-right-btn' style={{position : 'relative', padding : '16px'}}
-                             onClick={() => onVotingListBtnClick()}>
-                            <span style={{backgroundColor : 'rgb(25, 108, 255)', color : 'white', left : '50%', padding : '3px',
-                                position : 'absolute', transform : 'translateX(-50%) translateY(-125%)'}}>
+                    <div className='d-flex justify-content-end' style={{ position: 'absolute', right: '5%', bottom: '5%' }}>
+                        <div className='utils-right-btn' style={{ position: 'relative', padding: '16px' }} onClick={() => onVotingListBtnClick()}>
+                            <span
+                                style={{
+                                    backgroundColor: 'rgb(25, 108, 255)',
+                                    color: 'white',
+                                    left: '50%',
+                                    padding: '3px',
+                                    position: 'absolute',
+                                    transform: 'translateX(-50%) translateY(-125%)',
+                                }}
+                            >
                                 {listVoting.length}
                             </span>
-                            <FontAwesomeIcon icon={faUser} size={'1x'}/>
+                            <FontAwesomeIcon icon={faUser} size={'1x'} />
                         </div>
                     </div>
                 </Col>
@@ -422,11 +427,12 @@ const SlidePresent = () => {
                         </div>
                     </div>
                     {isChoosingChatBox ? (
-                        <Chat preId={presentingId} messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
+                        <Chat isLoading={isLoading} preId={presentingId} messagesEndRef={messagesEndRef} chatList={chatList} className={'chat-pane'}>
                             {' '}
                         </Chat>
                     ) : (
                         <QuestionBox
+                            isLoading={isLoading}
                             preId={presentingId}
                             setQuestionList={setQuestionList}
                             questionEndRef={questionEndRef}
@@ -448,16 +454,13 @@ const SlidePresent = () => {
                                 <th>Started time</th>
                             </thead>
                             <tbody>
-                            {
-                                listVoting.map(voting =>
+                                {listVoting.map((voting) => (
                                     <tr>
                                         <td>{voting?.userVote?.username}</td>
                                         <td>{voting?.option?.name}</td>
                                         <td>{formatDate(+voting?.createdTime)}</td>
                                     </tr>
-                                )
-                            }
-
+                                ))}
                             </tbody>
                         </Table>
                     </Modal.Body>
