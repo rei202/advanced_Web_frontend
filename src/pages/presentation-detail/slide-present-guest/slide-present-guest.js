@@ -42,7 +42,6 @@ const SlidePresentGuest = () => {
     const presentationApi = usePresentationApi();
     const presentingApi = usePresentingApi();
 
-    const axios = useAxios();
     const [listSlide, setListSlide] = useState([]);
     const [slide, setSlide] = useState();
     const [listOptionVote, setListOptionVote] = useState([]);
@@ -98,6 +97,12 @@ const SlidePresentGuest = () => {
 
     const [currentSlideIndex, setCurrentSlideIndex] = useState();
     let currentSlideInitTmp = 0;
+
+    useEffect(() => {
+        console.log('chek listSlide');
+        console.log(listSlide);
+    }, [listSlide])
+
     const reloadData = () => {
         presentingApi
             .getPresentingData(presentingId)
@@ -114,13 +119,14 @@ const SlidePresentGuest = () => {
             })
             .then((resp) => {
                 const listSlideTmp = resp.data;
-                setListSlide(resp.data);
+                setListSlide(listSlideTmp);
                 return reloadContentDetail(listSlideTmp[currentSlideInitTmp].id);
             })
             .catch((err) => {
                 console.log(err);
             });
     };
+
 
     const scrollToBottomChat = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -131,12 +137,12 @@ const SlidePresentGuest = () => {
 
     const groupApi = useGroupApi();
     useEffect(() => {
-        reloadData();
+        if (stompClient.isConnected) reloadData();
     }, [stompClient.isConnected]);
 
     const [isSetSocket, setIsSetSocket] = useState(false);
     useEffect(() => {
-        if (stompClient.isConnected && listSlide && !isSetSocket) {
+        if (stompClient.isConnected && listSlide && listSlide.length > 0 && !isSetSocket) {
             setIsSetSocket(true);
             for (const slide of listSlide) if (slide?.content?.slideType == 1) connect(slide.id);
             stompClient.client.subscribe(`/topic/presenting/${presentingId}`, onSlideChangeMessage);
@@ -148,13 +154,17 @@ const SlidePresentGuest = () => {
         }
     }, [stompClient.isConnected, listSlide]);
 
-    // useEffect(() => {
-    //     return () => {
-    //         stompClient.client.unsubscribe(`/topic/slide/${slide?.id}`);
-    //         stompClient.client.unsubscribe(`/topic/chatroom/${preId}`);
-    //         stompClient.client.unsubscribe(`/topic/question/${preId}`);
-    //     };
-    // }, []);
+    useEffect(() => {
+        return () => {
+            for (const slide of listSlide)
+                if (slide?.content?.slideType == 1) {
+                    stompClient.client.unsubscribe(`/topic/slide/${slide.id}`);
+                }
+            stompClient.client.unsubscribe(`/topic/presenting/${presentingId}`);
+            stompClient.client.unsubscribe(`/topic/chatroom/${preId}`);
+            stompClient.client.unsubscribe(`/topic/question/${preId}`);
+        };
+    }, []);
     const loadOldMessage = () => {
         chatApi.loadOldMessage(presentingId).then((res) => {
             chatArr = res.data;
@@ -187,9 +197,9 @@ const SlidePresentGuest = () => {
     };
 
     const onSlideChangeMessage = (payload) => {
-        console.log(payload.body);
         setCurrentSlideIndex(payload.body);
-        reloadContentDetail(listSlide[payload.body].id);
+        console.log(listSlide);
+        if (listSlide && listSlide.length > 0) reloadContentDetail(listSlide[payload.body].id);
     };
 
     const onPrivateMessage = (payload) => {
