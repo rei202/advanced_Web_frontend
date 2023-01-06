@@ -45,8 +45,6 @@
 .list-group {
     /* max-height: 80% !important; */
     height: 80vh !important;
-    overflow: hidden !important;
-    overflow-y: scroll !important;
 }
 
 td {

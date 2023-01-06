@@ -137,7 +137,7 @@ const SlideShow = (props) => {
     };
     return (
         <>
-            <Row style={{ backgroundColor: 'rgb(219, 220, 225)', padding: '32px 32px 70px 32px', height: '90%' }}>
+            <Row style={{ backgroundColor: 'rgb(219, 220, 225)', padding: '32px 32px 70px 32px', height: '100%' }}>
                 {!props.isEmtyList ? (
                     <div className='container-slide'>
                         <p>
@@ -151,14 +151,6 @@ const SlideShow = (props) => {
                         <h4 style={{ marginTop: '20px' }}>You haven't created any slide, let create new one !</h4>
                     </div>
                 )}
-            </Row>
-            <Row className='p-2' style={{ height: '10%' }}>
-                <Col>
-                    <Button className='icon-button text-primary'>
-                        <FontAwesomeIcon icon={faPencil} />
-                        <span>Presenter notes</span>
-                    </Button>
-                </Col>
             </Row>
         </>
     );

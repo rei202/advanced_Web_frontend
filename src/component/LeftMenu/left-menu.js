@@ -9,20 +9,20 @@ import {useLocation, useNavigate} from 'react-router';
 const LeftMenu = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const currentPage = location.pathname.split('/').at(-1);
+    const listElement = location.pathname.split('/');
     return (
         <>
             <ListGroup>
                 <NavLink to={'/'} className={'navlink-text'}>
                     <ListGroup.Item action className='border-0 text-start'
-                                    active={currentPage == 'group'}
+                                    active={listElement.includes('group')}
                                     onClick={() => navigate('/group')}>
                         <img height={25} src={groupIcon} style={{ marginBottom: '5px' }}></img> Group
                     </ListGroup.Item>
                 </NavLink>
                 <NavLink to={'/presentation'} className={'navlink-text'}>
                     <ListGroup.Item action className='border-0 text-start'
-                                    active={currentPage == 'presentation'}
+                                    active={listElement.includes('presentation')}
                                     onClick={() => navigate('/presentation')}>
                         <img height={25} src={preIcon}></img> Presentation
                     </ListGroup.Item>
