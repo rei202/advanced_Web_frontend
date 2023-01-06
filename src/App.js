@@ -21,7 +21,7 @@ function App() {
                 })}
 
                 {privateRoutes.map((route, index) => {
-                    const Page : any = route.element;
+                    const Page = route.element;
                     if (route.haveLayout) {
                         return <Route key={index} path={route.path} element={
                             <RequireAuth>
@@ -31,7 +31,7 @@ function App() {
                             </RequireAuth>
                         }/>;
                     } else {
-                        return <Route key={index} path={route.path} element={
+                        return <Route key={index} path={route.path} element={ 
                             <RequireAuth>
                                 <Page/>
                             </RequireAuth>

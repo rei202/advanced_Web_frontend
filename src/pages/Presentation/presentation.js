@@ -2,7 +2,7 @@ import './presentation.css';
 import { Button, Dropdown, Form, Modal, Table } from 'react-bootstrap';
 import { CaretRightSquareFill } from 'react-bootstrap-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsisH, faPlus } from '@fortawesome/free-solid-svg-icons';
+import {faEllipsisH, faPencil, faPlus, faTrash} from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
@@ -113,9 +113,6 @@ const Presentation = () => {
                 <Table hover>
                     <thead>
                         <tr>
-                            <th className='text-start'>
-                                <input type='checkbox' className='custom-checkbox' />
-                            </th>
                             <th className='text-start'>Name</th>
                             <th className='text-start'>Owner</th>
                             <th className='text-start'>Modified</th>
@@ -126,7 +123,6 @@ const Presentation = () => {
                     <tbody>
                         {presentationList.map((presentation: any, index) => (
                             <tr className='row-table text-start' key={index}>
-                                <td></td>
                                 <td>
                                     <div className='d-flex flex-row align-items-center'>
                                         <CaretRightSquareFill
@@ -160,8 +156,14 @@ const Presentation = () => {
                                         </Dropdown.Toggle>
 
                                         <Dropdown.Menu>
-                                            <Dropdown.Item onClick={() => onEditDropDownClick(presentation)}>Edit</Dropdown.Item>
-                                            <Dropdown.Item onClick={() => onDeleteDropDownClick(presentation)}>Delete</Dropdown.Item>
+                                            <Dropdown.Item onClick={() => onEditDropDownClick(presentation)}>
+                                                <FontAwesomeIcon icon={faPencil} size='1x' className='me-2'></FontAwesomeIcon>
+                                                Edit
+                                            </Dropdown.Item>
+                                            <Dropdown.Item onClick={() => onDeleteDropDownClick(presentation)}>
+                                                <FontAwesomeIcon icon={faTrash} size='1x' className='me-2'></FontAwesomeIcon>
+                                                Delete
+                                            </Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
                                 </td>

@@ -91,7 +91,7 @@ const SlideEdit = (props) => {
             )
     }
     const deleteOption = (option) => {
-        axios.post('/api/v1/slide-type/delete-multiple-choice', {slideTypeId : option?.option?.id, slideType : 1})
+        axios.post('/api/v1/slide-type/delete-multiple-choice', {slideTypeId : option?.id, slideType : 1})
             .then(resp => {
                 reloadContentDetail();
                 props.changeValue();
@@ -124,7 +124,7 @@ const SlideEdit = (props) => {
         jsonDataObj['slideTypeId'] = slideTypeId;
         jsonDataObj['heading'] = e.target.value;
         if (slideType == 2) {
-            jsonDataObj['paragraph'] = subheading;
+            jsonDataObj['paragraph'] = paragraph;
         } else {
             apiValue = 'edit-content-heading';
             jsonDataObj['subHeading'] = subheading
@@ -182,7 +182,7 @@ const SlideEdit = (props) => {
         if (timeoutEvent) clearTimeout(timeoutEvent);
 
         setTimeOutEvent(setTimeout(() => {
-            axios.post('/api/v1/slide-type/edit-multiple-choice', {'slideType' : 1, 'optionName' : e.target.value, 'slideTypeId' : option?.option?.id })
+            axios.post('/api/v1/slide-type/edit-multiple-choice', {'slideType' : 1, 'optionName' : e.target.value, 'slideTypeId' : option?.id })
                 .then(resp => {
                     props.changeValue();
                     clearTimeout(timeoutEvent);

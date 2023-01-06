@@ -2,8 +2,8 @@ import {FC} from "react";
 import {useNavigate, Navigate, useLocation} from "react-router";
 
 const RequireAuth: FC<{ children: React.ReactElement }> = ({ children }) => {
-
-    let searchParams = new URLSearchParams(window.location.search.substring(1));
+    const url = window.location.href;
+    let searchParams = new URLSearchParams(url.split('#').at(-1));
     const location = useLocation();
     if (location.pathname.startsWith('/invite')) {
         const groupId = location.pathname.split('/').at(-1);

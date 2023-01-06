@@ -36,6 +36,7 @@ import useSlideApi from "../../api/useSlideApi";
 import useGroupApi from "../../api/useGroupApi";
 import usePresentationApi from "../../api/usePresentationApi";
 import usePresentingApi from "../../api/usePresentingApi";
+import {role_user} from "../../constant/common.const";
 
 const PresentationDetail = () => {
     const navigate = useNavigate();
@@ -146,9 +147,11 @@ const PresentationDetail = () => {
         setIsChooseGroupToSlideModal(true);
         groupApi.getMyGroup()
             .then(resp => {
-                const listGroupTmp = resp?.data?.map(
-                    groupData => groupData.group
-                );
+                const listGroupTmp = resp?.data
+                    .filter(groupData => groupData.roleUserInGroup == role_user.owner || groupData.roleUserInGroup == role_user.coOwner)
+                    .map(
+                        groupData => groupData.group
+                    );
                 console.log(listGroupTmp);
                 setListGroup(listGroupTmp);
             })
@@ -175,7 +178,7 @@ const PresentationDetail = () => {
 
 
     return (
-        <Container fluid>
+        <Container fluid className='h-100'>
             {/*Nav Bar*/}
             <Row>
                 <Container id='custom-navbar'>
@@ -195,10 +198,6 @@ const PresentationDetail = () => {
                                 </div>
                             </Nav>
                             <Nav>
-                                <Button variant='secondary' className='me-4'>
-                                    <Share size='20' className={'me-2'}></Share>
-                                    <span>Share</span>
-                                </Button>
                                 <Button variant='primary' onClick={() => onGroupSelectModalOpen()}>
                                     <FontAwesomeIcon className={'me-2'} icon={faCaretRight} size={'xl'}/>
                                     <span>Present</span>
