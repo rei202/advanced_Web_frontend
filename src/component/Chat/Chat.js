@@ -5,8 +5,9 @@ import Message from './Message';
 import { over } from 'stompjs';
 import { useEffect, useRef, useState } from 'react';
 import useChatApi from '../../api/useChatApi';
+import Loading from '../Loading/Loading';
 
-const Chat = ({ chatList, messagesEndRef, preId }) => {
+const Chat = ({ isLoading, chatList, messagesEndRef, preId }) => {
     const [dataInput, setDataInput] = useState('');
     const chatApi = useChatApi();
     const submitMessage = () => {
@@ -25,31 +26,36 @@ const Chat = ({ chatList, messagesEndRef, preId }) => {
     return (
         <>
             <div className='chat-pane'>
-                <div className='chat-container'>
-                    {chatList.map((value, index) => (
-                        <Message
-                            key={index}
-                            isOwner={value.username === localStorage.getItem('username') ? true : false}
-                            username={value.username}
-                            content={value.message}
-                            fullname={value.fullName}
-                        />
-                    ))}
-                    <div ref={messagesEndRef} />
-                
-                </div>
-                <div className={'input-chat-box'}>
-                    <input
-                        placeholder='Type message to send'
-                        value={dataInput}
-                        onKeyDown={(e) => handleKeyDown(e)}
-                        onChange={(e) => setDataInput(e.target.value)}
-                        type='text'
-                    ></input>
-                    <div onClick={() => submitMessage()} className='send-btn-wapper'>
-                        <FontAwesomeIcon className='send-btn' icon={faPaperPlane}></FontAwesomeIcon>
-                    </div>
-                </div>
+                {isLoading ? (
+                    <Loading />
+                ) : (
+                    <>
+                        <div className='chat-container'>
+                            {chatList.map((value, index) => (
+                                <Message
+                                    key={index}
+                                    isOwner={value.username === localStorage.getItem('username') ? true : false}
+                                    username={value.username}
+                                    content={value.message}
+                                    fullname={value.fullName}
+                                />
+                            ))}
+                            <div ref={messagesEndRef} />
+                        </div>
+                        <div className={'input-chat-box'}>
+                            <input
+                                placeholder='Type message to send'
+                                value={dataInput}
+                                onKeyDown={(e) => handleKeyDown(e)}
+                                onChange={(e) => setDataInput(e.target.value)}
+                                type='text'
+                            ></input>
+                            <div onClick={() => submitMessage()} className='send-btn-wapper'>
+                                <FontAwesomeIcon className='send-btn' icon={faPaperPlane}></FontAwesomeIcon>
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </>
     );

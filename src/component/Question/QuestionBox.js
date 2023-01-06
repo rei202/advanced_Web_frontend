@@ -9,8 +9,9 @@ import { useEffect, useRef, useState } from 'react';
 import useChatApi from '../../api/useChatApi';
 import Question from './Question';
 import useQuestionApi from '../../api/useQuestionApi';
+import Loading from '../Loading/Loading';
 
-const QuestionBox = ({ currentRole, questionList, questionEndRef, setQuestionList, preId }) => {
+const QuestionBox = ({ isLoading, currentRole, questionList, questionEndRef, setQuestionList, preId }) => {
     const [dataInput, setDataInput] = useState('');
     const [isDescendingVoteSort, setIsDescendingVoteSort] = useState(false);
     const [isRecentTimeFirstSort, setIsRecentTimeFirstSort] = useState(false);
@@ -64,63 +65,69 @@ const QuestionBox = ({ currentRole, questionList, questionEndRef, setQuestionLis
     return (
         <>
             <div className='chat-pane'>
-                <div className='chat-container'>
-                    <div style={{ marginBottom: '10px' }}>
-                        {/* <FontAwesomeIcon icon={faFilter} style={{ height: '20px' }}></FontAwesomeIcon> */}
-                        <Dropdown align={'end'} style={{ textAlign: 'end' }}>
-                            <Dropdown.Toggle id='dropdown-basic' className='icon-button' style={{ color: 'black' }}>
-                                filter
-                                <FontAwesomeIcon style={{ marginLeft: '5px' }} color='black' icon={faFilter}></FontAwesomeIcon>
-                            </Dropdown.Toggle>
+                {isLoading ? (
+                    <Loading />
+                ) : (
+                    <>
+                        <div className='chat-container'>
+                            <div style={{ marginBottom: '10px' }}>
+                                {/* <FontAwesomeIcon icon={faFilter} style={{ height: '20px' }}></FontAwesomeIcon> */}
+                                <Dropdown align={'end'} style={{ textAlign: 'end' }}>
+                                    <Dropdown.Toggle id='dropdown-basic' className='icon-button' style={{ color: 'black' }}>
+                                        filter
+                                        <FontAwesomeIcon style={{ marginLeft: '5px' }} color='black' icon={faFilter}></FontAwesomeIcon>
+                                    </Dropdown.Toggle>
 
-                            <Dropdown.Menu style={{ fontSize: '14px' }}>
-                                <Dropdown.Item
-                                    onClick={() => {
-                                        handleAnsweredSort();
-                                    }}
-                                >
-                                    {' '}
-                                    {isAnsweredSort ? 'Unanswered' : 'Answered'}
-                                </Dropdown.Item>
-                                <Dropdown.Item
-                                    onClick={() => {
-                                        handleVoteSort();
-                                    }}
-                                >
-                                    {isDescendingVoteSort ? 'Ascending vote' : 'Descending vote'}
-                                </Dropdown.Item>
-                                <Dropdown.Item
-                                    onClick={() => {
-                                        handleTimeSort();
-                                    }}
-                                >
-                                    {' '}
-                                    {isRecentTimeFirstSort ? 'Old time' : 'Recent time'}
-                                </Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </div>
-                    {questionList.map((value, index) => (
-                        <Question
-                            key={index}
-                            username={value.fullName}
-                            content={value.question}
-                            datetime={value.createdTime}
-                            upVoteNum={value.numberVote}
-                            isAnswer={value.isAnswered}
-                            questionId={value.id}
-                            preId={preId}
-                            currentRole={currentRole}
-                        />
-                    ))}
-                    <div ref={questionEndRef} />
-                </div>
-                <div className={'input-chat-box'}>
-                    <input value={dataInput} onKeyDown={(e) => handleKeyDown(e)} onChange={(e) => setDataInput(e.target.value)} type='text'></input>
-                    <div onClick={() => submitMessage()} className='send-btn-wapper'>
-                        <FontAwesomeIcon className='send-btn' icon={faPaperPlane}></FontAwesomeIcon>
-                    </div>
-                </div>
+                                    <Dropdown.Menu style={{ fontSize: '14px' }}>
+                                        <Dropdown.Item
+                                            onClick={() => {
+                                                handleAnsweredSort();
+                                            }}
+                                        >
+                                            {' '}
+                                            {isAnsweredSort ? 'Unanswered' : 'Answered'}
+                                        </Dropdown.Item>
+                                        <Dropdown.Item
+                                            onClick={() => {
+                                                handleVoteSort();
+                                            }}
+                                        >
+                                            {isDescendingVoteSort ? 'Ascending vote' : 'Descending vote'}
+                                        </Dropdown.Item>
+                                        <Dropdown.Item
+                                            onClick={() => {
+                                                handleTimeSort();
+                                            }}
+                                        >
+                                            {' '}
+                                            {isRecentTimeFirstSort ? 'Old time' : 'Recent time'}
+                                        </Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </div>
+                            {questionList.map((value, index) => (
+                                <Question
+                                    key={index}
+                                    username={value.fullName}
+                                    content={value.question}
+                                    datetime={value.createdTime}
+                                    upVoteNum={value.numberVote}
+                                    isAnswer={value.isAnswered}
+                                    questionId={value.id}
+                                    preId={preId}
+                                    currentRole={currentRole}
+                                />
+                            ))}
+                            <div ref={questionEndRef} />
+                        </div>
+                        <div className={'input-chat-box'}>
+                            <input value={dataInput} onKeyDown={(e) => handleKeyDown(e)} onChange={(e) => setDataInput(e.target.value)} type='text'></input>
+                            <div onClick={() => submitMessage()} className='send-btn-wapper'>
+                                <FontAwesomeIcon className='send-btn' icon={faPaperPlane}></FontAwesomeIcon>
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </>
     );

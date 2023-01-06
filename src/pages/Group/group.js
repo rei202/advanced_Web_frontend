@@ -15,7 +15,8 @@ import PresentingAlert from '../../component/PresentingNotification/presenting-a
 import PresentingPopUp from '../../component/PresentingNotification/pop-up';
 import useNotificationApi from '../../api/useNotificationApi';
 import SocketContext from '../../store/Context';
-import usePresentingApi from "../../api/usePresentingApi";
+import usePresentingApi from '../../api/usePresentingApi';
+import Loading from '../../component/Loading/Loading';
 const Group = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     searchParams.get('id');
@@ -26,7 +27,8 @@ const Group = () => {
     const [showModal, setShowModal] = useState(false);
     const [showPresentingPopup, setShowPresentingPopup] = useState(false);
     const [showPresentingNoti, setShowPresentingNoti] = useState(false);
-    const stompClient = useContext(SocketContext)
+    const [isLoading, setIsLoading] = useState(true);
+    const stompClient = useContext(SocketContext);
     const notificationApi = useNotificationApi();
     const axios = useAxios();
     const { id } = useParams();
@@ -104,7 +106,10 @@ const Group = () => {
     };
 
     const onConnected = () => {
-        if (stompClient.isConnected) stompClient.client.subscribe(`/topic/notification/${id}`, onNotification);
+        if (stompClient.isConnected) {
+            stompClient.client.subscribe(`/topic/notification/${id}`, onNotification);
+            setIsLoading(false);
+        }
     };
     const onNotification = (payload) => {
         var payloadData = JSON.parse(payload.body);
@@ -141,13 +146,10 @@ const Group = () => {
                 console.log(err);
             });
 
-        presentingApi.getPresentingGroup(id)
-            .then(
-                resp => {
-                    // console.log(resp.data);
-                    setPresentingId(resp.data[0].id);
-                }
-            )
+        presentingApi.getPresentingGroup(id).then((resp) => {
+            // console.log(resp.data);
+            setPresentingId(resp.data[0].id);
+        });
 
         notificationApi.checkPresenting(id).then((res) => {
             if (res.data !== null) {
@@ -160,37 +162,42 @@ const Group = () => {
     return (
         <>
             {' '}
-            {/* <PopUp></PopUp> */}
-            <div>{showPresentingNoti && <PresentingAlert presentingGroupData={presentingId} />}</div>
-            <div className='admin-assignment-wapper'>
-                <h3 className='role-title'>Admin</h3>
-                <div className='cre-link-btn-wapper'>
-                    <Button variant='primary' onClick={() => setShowModal(true)}>
-                        {/* <FontAwesomeIcon icon={faPlusCircle} style={{ marginRight: '5px' }} /> */}
-                        Invite participant
-                    </Button>{' '}
-                </div>
-            </div>
-            <hr />
-            {listOwner.length === 0 ? (
-                <EmptyNotification props={"Nothing to show. Let's participate some groups "} />
+            {isLoading ? (
+                <Loading />
             ) : (
-                <ListOwnerView props={listOwner} myRole={myAccountInGroup.roleUserInGroup} handlerDemote={handlerDemote}></ListOwnerView>
+                <>
+                    <div>{showPresentingNoti && <PresentingAlert presentingGroupData={presentingId} />}</div>
+                    <div className='admin-assignment-wapper'>
+                        <h3 className='role-title'>Admin</h3>
+                        <div className='cre-link-btn-wapper'>
+                            <Button variant='primary' onClick={() => setShowModal(true)}>
+                                {/* <FontAwesomeIcon icon={faPlusCircle} style={{ marginRight: '5px' }} /> */}
+                                Invite participant
+                            </Button>{' '}
+                        </div>
+                    </div>
+                    <hr />
+                    {listOwner.length === 0 ? (
+                        <EmptyNotification props={"Nothing to show. Let's participate some groups "} />
+                    ) : (
+                        <ListOwnerView props={listOwner} myRole={myAccountInGroup.roleUserInGroup} handlerDemote={handlerDemote}></ListOwnerView>
+                    )}
+                    <h3 className='role-title'>Member</h3>
+                    <hr />
+                    {listMember.length === 0 ? (
+                        <EmptyNotification props={'There is no any member here !!'} />
+                    ) : (
+                        <ListMemberView
+                            props={listMember}
+                            myRole={myAccountInGroup.roleUserInGroup}
+                            handlerDelete={handlerDelete}
+                            handlerUpgrade={handlerUpgrade}
+                        ></ListMemberView>
+                    )}
+                    <PresentingPopUp show={showPresentingPopup} presentingId={presentingId} onHide={() => setShowPresentingPopup(false)} />
+                    <CreLinkCenteredModal show={showModal} onHide={() => setShowModal(false)} />
+                </>
             )}
-            <h3 className='role-title'>Member</h3>
-            <hr />
-            {listMember.length === 0 ? (
-                <EmptyNotification props={'There is no any member here !!'} />
-            ) : (
-                <ListMemberView
-                    props={listMember}
-                    myRole={myAccountInGroup.roleUserInGroup}
-                    handlerDelete={handlerDelete}
-                    handlerUpgrade={handlerUpgrade}
-                ></ListMemberView>
-            )}
-            <PresentingPopUp show={showPresentingPopup} presentingId={presentingId} onHide={() => setShowPresentingPopup(false)} />
-            <CreLinkCenteredModal show={showModal} onHide={() => setShowModal(false)} />
         </>
     );
 };
